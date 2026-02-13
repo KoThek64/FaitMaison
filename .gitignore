@@ -18,3 +18,16 @@
 /public/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
+
+# Uploads
+/public/uploads/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
