@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recette{% endblock %}
+
+{% block body %}
+    {{ recipe.title }}
+    {{ recipe.description }}
+    {{ recipe.steps }}
+    {{ recipe.duration }}
+    {{ recipe.servings }}
+    {{ recipe.difficulty }}
+    {{ recipe.category.name }}
+    {{ recipe.author.username }}
+
+    {% if app.user == recipe.author %}
+        <a href="{{ path('app_recipe_edit', {id: recipe.id}) }}">Modifier</a>
+        <form method="post" action="{{ path('app_recipe_delete', {id: recipe.id}) }}">
+            <button type="submit">Supprimer</button>
+        </form>
+    {% endif %}
+{% endblock %}
