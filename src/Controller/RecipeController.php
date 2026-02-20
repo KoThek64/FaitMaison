@@ -22,7 +22,7 @@ final class RecipeController extends AbstractController
     }
 
     #[IsGranted('ROLE_USER')]
-    #[Route('/recette/nouvelle', name: 'app_recipe_add')]
+    #[Route('/recette/ajouter', name: 'app_recipe_add')]
     public function new(Request $request, EntityManagerInterface $em) : Response
     {
         $recipe = new Recipe;
