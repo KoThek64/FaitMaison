@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profil{% endblock %}
+
+{% block body %}
+    {{ user.username }}
+    {{ user.createdAt|date('d/m/Y') }}
+    {% for recipe in user.recipes %}
+        {% if recipe.isPublished %}
+            <a href="{{ path('app_recipe_show', {id: recipe.id}) }}">{{ recipe.title }}</a>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
