@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Recipe;
 use App\Form\RecipeType;
 use App\Repository\FavoriteRepository;
+use App\Repository\RatingRepository;
 use App\Repository\RecipeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,19 +45,29 @@ final class RecipeController extends AbstractController
     }
 
     #[Route('/recette/{id}', name: 'app_recipe_show')]
-    public function show(Recipe $recipe, FavoriteRepository $favoriteRepository) : Response
+    public function show(Recipe $recipe, FavoriteRepository $favoriteRepository, RatingRepository $ratingRepository) : Response
     {
         $isFavorite = false;
+        $userRating = null;
+
         if ($this->getUser()) {
             $isFavorite = (bool) $favoriteRepository->findOneBy([
                 'user' => $this->getUser(),
                 'recipe' => $recipe,
             ]);
+            $userRating = $ratingRepository->findOneBy([
+                'user' => $this->getUser(),
+                'recipe' => $recipe,
+            ]);
         }
+
+        $averageRating = $ratingRepository->findAverageForRecipe($recipe);
 
         return $this->render('recipe/show.html.twig', [
             'recipe' => $recipe,
             'isFavorite' => $isFavorite,
+            'userRating' => $userRating,
+            'average' => $averageRating,
         ]);
     }
 

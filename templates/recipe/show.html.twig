@@ -18,9 +18,22 @@
             <button type="submit">Supprimer</button>
         </form>
     {% endif %}
+    {{ average ? 'Note moyenne : ' ~ average ~ '/5' : 'Pas encore noté' }}
+
     {% if app.user %}
         <form method="post" action="{{ path('app_favorite_toggle', {id: recipe.id}) }}">
             <button type="submit">{{ isFavorite ? '★' : '☆' }}</button>
+        </form>
+
+        <form method="post" action="{{ path('app_recipe_rating', {id: recipe.id}) }}">
+            {% for i in 1..5 %}
+                <label>
+                    <input type="radio" name="score" value="{{ i }}"
+                        {{ userRating and userRating.score == i ? 'checked' : '' }}>
+                    {{ i }}
+                </label>
+            {% endfor %}
+            <button type="submit">Noter</button>
         </form>
     {% endif %}
 {% endblock %}
