@@ -18,4 +18,9 @@
             <button type="submit">Supprimer</button>
         </form>
     {% endif %}
+    {% if app.user %}
+        <form method="post" action="{{ path('app_favorite_toggle', {id: recipe.id}) }}">
+            <button type="submit">{{ isFavorite ? '★' : '☆' }}</button>
+        </form>
+    {% endif %}
 {% endblock %}

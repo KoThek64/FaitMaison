@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Recipe;
 use App\Form\RecipeType;
+use App\Repository\FavoriteRepository;
 use App\Repository\RecipeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,9 +44,20 @@ final class RecipeController extends AbstractController
     }
 
     #[Route('/recette/{id}', name: 'app_recipe_show')]
-    public function show(Recipe $recipe) : Response
+    public function show(Recipe $recipe, FavoriteRepository $favoriteRepository) : Response
     {
-        return $this->render('recipe/show.html.twig', ['recipe' => $recipe]);
+        $isFavorite = false;
+        if ($this->getUser()) {
+            $isFavorite = (bool) $favoriteRepository->findOneBy([
+                'user' => $this->getUser(),
+                'recipe' => $recipe,
+            ]);
+        }
+
+        return $this->render('recipe/show.html.twig', [
+            'recipe' => $recipe,
+            'isFavorite' => $isFavorite,
+        ]);
     }
 
     #[Route('/recette/{id}/modifier', name: 'app_recipe_edit', methods: ['GET', 'POST'])]

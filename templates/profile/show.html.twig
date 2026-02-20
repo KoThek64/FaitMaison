@@ -10,4 +10,9 @@
             <a href="{{ path('app_recipe_show', {id: recipe.id}) }}">{{ recipe.title }}</a>
         {% endif %}
     {% endfor %}
+    {% for favori in user.favorites %}
+        {% if favori.recipe %}
+            <a href="{{ path('app_recipe_show', {id: favori.recipe.id}) }}">{{ favori.recipe.title }}</a>
+        {% endif %}
+    {% endfor %}
 {% endblock %}
