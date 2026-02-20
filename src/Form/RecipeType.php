@@ -9,6 +9,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -18,8 +19,12 @@ class RecipeType extends AbstractType
     {
         $builder
             ->add('title')
-            ->add('description')
-            ->add('steps')
+            ->add('description', TextareaType::class, [
+                'label' => 'Description'
+            ])
+            ->add('steps', TextareaType::class, [
+                'label' => 'Étapes'
+            ])
             ->add('duration')
             ->add('servings')
             ->add('difficulty', ChoiceType::class, [

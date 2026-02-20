@@ -16,6 +16,15 @@ class RecipeRepository extends ServiceEntityRepository
         parent::__construct($registry, Recipe::class);
     }
 
+    public function findPublished() {
+        $result = $this->createQueryBuilder('r')
+            ->andWhere('r.isPublished = true')
+            ->orderBy('r.createdAt','DESC')
+            ->getQuery()->getResult();
+
+        return $result;
+    }
+
 //    /**
 //     * @return Recipe[] Returns an array of Recipe objects
 //     */
