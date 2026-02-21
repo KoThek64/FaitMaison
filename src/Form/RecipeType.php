@@ -34,9 +34,6 @@ class RecipeType extends AbstractType
                     'Difficile' => 'difficile'
                 ]
             ])
-            ->add('isPublished', CheckboxType::class, [
-                'label' => 'Publier la recette'
-            ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'name',
@@ -46,6 +43,9 @@ class RecipeType extends AbstractType
                 'class' => Tag::class,
                 'choice_label' => 'name',
                 'multiple' => true,
+            ])
+            ->add('isPublished', CheckboxType::class, [
+                'label' => 'Publier la recette'
             ])
         ;
     }

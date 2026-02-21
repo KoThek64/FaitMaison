@@ -1,64 +1,78 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Profil de {{ user.username }}{% endblock %}
+{% block title %}{{ user.username }}{% endblock %}
 
 {% block body %}
-    <div class="max-w-3xl mx-auto p-6 lg:p-10">
+<div style="max-width:52rem; margin:0 auto; padding:2.5rem 1.5rem 4rem;">
 
-        {# Header profil #}
-        <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 flex items-center gap-6">
-            <div class="w-20 h-20 rounded-full bg-orange-500 flex items-center justify-center text-white text-3xl font-bold shrink-0">
-                {{ user.username|first|upper }}
-            </div>
-            <div class="flex-1 min-w-0">
-                <h1 class="font-playfair text-2xl font-bold text-gray-800">{{ user.username }}</h1>
-                <p class="text-gray-500 text-sm">Membre depuis le {{ user.createdAt|date('d/m/Y') }}</p>
-            </div>
-            {% if app.user == user %}
-                <a href="{{ path('app_profile_edit') }}" class="px-5 py-2 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-full text-sm font-medium transition-colors shrink-0">
-                    ✏️ Modifier
+    {# En-tête profil #}
+    <div style="background:linear-gradient(135deg, var(--color-espresso) 0%, var(--color-espresso-mid) 100%); border-radius:1.5rem; padding:2rem; display:flex; align-items:center; gap:1.5rem; margin-bottom:2.5rem; flex-wrap:wrap;">
+        <div style="width:4.5rem; height:4.5rem; border-radius:50%; background:var(--color-terracotta); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:1.75rem; font-weight:700; color:var(--color-cream); flex-shrink:0;">
+            {{ user.username|first|upper }}
+        </div>
+        <div style="flex:1; min-width:0;">
+            <h1 style="font-size:1.625rem; color:var(--color-cream); margin-bottom:0.25rem;">{{ user.username }}</h1>
+            <p style="font-family:var(--font-crimson); font-size:0.875rem; color:rgba(250,244,232,0.5);">
+                Membre depuis {{ user.createdAt|date('F Y') }}
+            </p>
+        </div>
+        {% if app.user == user %}
+            <a href="{{ path('app_profile_edit') }}" class="btn-ghost"
+                style="border-color:rgba(250,244,232,0.2); color:rgba(250,244,232,0.7); background:rgba(250,244,232,0.06); flex-shrink:0;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Modifier le profil
+            </a>
+        {% endif %}
+    </div>
+
+    {# Recettes publiées #}
+    <div class="section-heading">
+        <h2 style="font-size:1.375rem;">Recettes publiées</h2>
+    </div>
+
+    {% set hasPublished = false %}
+    <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:2.5rem;">
+        {% for recipe in user.recipes %}
+            {% if recipe.isPublished %}
+                {% set hasPublished = true %}
+                <a href="{{ path('app_recipe_show', {id: recipe.id}) }}"
+                    style="display:flex; align-items:center; gap:1rem; background:white; border-radius:1rem; padding:1rem 1.25rem; text-decoration:none; box-shadow:0 1px 4px rgba(44,24,16,0.06); transition:box-shadow .2s, transform .2s;"
+                    onmouseover="this.style.boxShadow='0 4px 16px rgba(44,24,16,0.1)'; this.style.transform='translateX(4px)'"
+                    onmouseout="this.style.boxShadow='0 1px 4px rgba(44,24,16,0.06)'; this.style.transform='translateX(0)'">
+                    <div style="width:2.75rem; height:2.75rem; border-radius:0.625rem; background:var(--color-parchment); display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0; opacity:0.7;">🍽</div>
+                    <span style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ recipe.title }}</span>
+                    <svg style="margin-left:auto; flex-shrink:0; color:var(--color-sand);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </a>
             {% endif %}
-        </div>
+        {% endfor %}
+        {% if not hasPublished %}
+            <p style="font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem; padding:1.5rem 0;">Aucune recette publiée pour l'instant.</p>
+        {% endif %}
+    </div>
 
-        {# Recettes publiées #}
-        <h2 class="font-playfair text-xl font-bold text-gray-800 mb-4">Recettes publiées</h2>
-        <div class="space-y-3 mb-8">
-            {% set hasPublished = false %}
-            {% for recipe in user.recipes %}
-                {% if recipe.isPublished %}
-                    {% set hasPublished = true %}
-                    <a href="{{ path('app_recipe_show', {id: recipe.id}) }}"
-                        class="flex items-center gap-4 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all group">
-                        <div class="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-2xl shrink-0">🍽️</div>
-                        <span class="font-medium text-gray-800 group-hover:text-orange-600 transition-colors truncate">{{ recipe.title }}</span>
-                    </a>
-                {% endif %}
-            {% endfor %}
-            {% if not hasPublished %}
-                <p class="text-gray-400 text-sm py-4">Aucune recette publiée.</p>
+    {# Favoris (propriétaire uniquement) #}
+    {% if app.user == user %}
+        <div class="section-heading">
+            <h2 style="font-size:1.375rem;">Mes favoris</h2>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+            {% if user.favorites is empty %}
+                <p style="font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem; padding:1.5rem 0;">Aucun favori pour l'instant.</p>
+            {% else %}
+                {% for favori in user.favorites %}
+                    {% if favori.recipe %}
+                        <a href="{{ path('app_recipe_show', {id: favori.recipe.id}) }}"
+                            style="display:flex; align-items:center; gap:1rem; background:white; border-radius:1rem; padding:1rem 1.25rem; text-decoration:none; box-shadow:0 1px 4px rgba(44,24,16,0.06); transition:box-shadow .2s, transform .2s;"
+                            onmouseover="this.style.boxShadow='0 4px 16px rgba(44,24,16,0.1)'; this.style.transform='translateX(4px)'"
+                            onmouseout="this.style.boxShadow='0 1px 4px rgba(44,24,16,0.06)'; this.style.transform='translateX(0)'">
+                            <div style="width:2.75rem; height:2.75rem; border-radius:0.625rem; background:var(--color-gold-soft); display:flex; align-items:center; justify-content:center; font-size:1.125rem; flex-shrink:0; color:var(--color-gold);">★</div>
+                            <span style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ favori.recipe.title }}</span>
+                            <svg style="margin-left:auto; flex-shrink:0; color:var(--color-sand);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </a>
+                    {% endif %}
+                {% endfor %}
             {% endif %}
         </div>
+    {% endif %}
 
-        {# Favoris (visible uniquement par le propriétaire) #}
-        {% if app.user == user %}
-            <h2 class="font-playfair text-xl font-bold text-gray-800 mb-4">Mes favoris</h2>
-            <div class="space-y-3">
-                {% if user.favorites is empty %}
-                    <p class="text-gray-400 text-sm py-4">Aucun favori pour l'instant.</p>
-                {% else %}
-                    {% for favori in user.favorites %}
-                        {% if favori.recipe %}
-                            <a href="{{ path('app_recipe_show', {id: favori.recipe.id}) }}"
-                                class="flex items-center gap-4 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all group">
-                                <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-2xl shrink-0">★</div>
-                                <span class="font-medium text-gray-800 group-hover:text-orange-600 transition-colors truncate">{{ favori.recipe.title }}</span>
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-            </div>
-        {% endif %}
-
-    </div>
+</div>
 {% endblock %}

@@ -1,17 +1,23 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Modifier mon profil{% endblock %}
 
 {% block body %}
-    <div class="max-w-2xl mx-auto p-6 lg:p-10">
-        <h1 class="font-playfair text-3xl font-bold text-gray-800 mb-6">Modifier mon profil</h1>
-        <div class="bg-white rounded-2xl shadow-sm p-8">
-            {{ form_start(form, {attr: {class: 'space-y-5'}}) }}
-            {{ form_widget(form) }}
-            <button type="submit" class="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-medium transition-colors">
-                Enregistrer
-            </button>
-            {{ form_end(form) }}
-        </div>
+<div style="max-width:36rem; margin:0 auto; padding:2.5rem 1.5rem 4rem;">
+    <div style="margin-bottom:2rem;">
+        <a href="{{ path('app_profile_show', {id: app.user.id}) }}" style="font-family:var(--font-crimson); font-size:0.875rem; color:var(--color-terracotta); text-decoration:none; display:inline-flex; align-items:center; gap:0.375rem; margin-bottom:1rem;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Mon profil
+        </a>
+        <h1 style="font-size:2rem; margin-bottom:0.25rem;">Modifier mon profil</h1>
+        <p style="font-family:var(--font-crimson); color:var(--color-ink-muted);">Mettez à jour vos informations personnelles.</p>
     </div>
+    <div class="form-card">
+        {{ form_start(form, {attr: {style: 'display:flex; flex-direction:column; gap:1.25rem;'}}) }}
+        {{ form_widget(form) }}
+        <button type="submit" class="btn-primary" style="align-self:flex-start; padding:0.75rem 2rem; font-size:1rem; margin-top:0.25rem;">
+            Enregistrer
+        </button>
+        {{ form_end(form) }}
+    </div>
+</div>
 {% endblock %}
