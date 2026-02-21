@@ -14,7 +14,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ProfileController extends AbstractController
 {
-    #[Route('/profil/{id}', name: 'app_profile_show')]
+    #[Route('/profil/{id}', name: 'app_profile_show', requirements: ['id' => '\d+'])]
     public function show(User $user): Response
     {
         return $this->render('profile/show.html.twig', ['user' => $user]);

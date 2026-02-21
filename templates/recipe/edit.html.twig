@@ -1,10 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modification{% endblock %}
+{% block title %}Modifier {{ recipe.title }}{% endblock %}
 
 {% block body %}
-    {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button type="submit">Modifier</button>
-    {{ form_end(form) }}
+    <div class="max-w-2xl mx-auto p-6 lg:p-10">
+        <h1 class="font-playfair text-3xl font-bold text-gray-800 mb-6">Modifier la recette</h1>
+        <div class="bg-white rounded-2xl shadow-sm p-8">
+            {{ form_start(form, {attr: {class: 'space-y-5'}}) }}
+            {{ form_widget(form) }}
+            <button type="submit" class="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-medium transition-colors">
+                Enregistrer les modifications
+            </button>
+            {{ form_end(form) }}
+        </div>
+    </div>
 {% endblock %}

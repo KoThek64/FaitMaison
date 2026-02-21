@@ -16,13 +16,37 @@ class RecipeRepository extends ServiceEntityRepository
         parent::__construct($registry, Recipe::class);
     }
 
-    public function findPublished() {
-        $result = $this->createQueryBuilder('r')
+    public function findPublished(array $filters = []) {
+        $qb = $this->createQueryBuilder('r')
             ->andWhere('r.isPublished = true')
-            ->orderBy('r.createdAt','DESC')
-            ->getQuery()->getResult();
+            ->orderBy('r.createdAt','DESC');
 
-        return $result;
+        if (!empty($filters['search'])){
+            $qb->andWhere('r.title LIKE :search')
+                ->setParameter('search', '%' . $filters['search'] . '%');
+        }
+
+        if (!empty($filters['difficulty'])){
+            $qb->andWhere('r.difficulty = :difficulty')
+                ->setParameter('difficulty', $filters['difficulty']);
+        }
+
+        if (!empty($filters['category'])){
+            $qb->andWhere('r.category = :category')
+                ->setParameter('category' , $filters['category']);
+        }
+
+        if (!empty($filters['maxDuration'])){
+            $qb->andWhere('r.duration <= :maxDuration')
+                ->setParameter('maxDuration' , $filters['maxDuration']);
+        }
+
+        if (!empty($filters['servings'])){
+            $qb->andWhere('r.servings = :servings')
+                ->setParameter('servings' , $filters['servings']);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
 //    /**

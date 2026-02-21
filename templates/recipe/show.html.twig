@@ -1,39 +1,105 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Recette{% endblock %}
+{% block title %}{{ recipe.title }}{% endblock %}
 
 {% block body %}
-    {{ recipe.title }}
-    {{ recipe.description }}
-    {{ recipe.steps }}
-    {{ recipe.duration }}
-    {{ recipe.servings }}
-    {{ recipe.difficulty }}
-    {{ recipe.category.name }}
-    {{ recipe.author.username }}
+    <div class="max-w-3xl mx-auto p-6 lg:p-10">
 
-    {% if app.user == recipe.author %}
-        <a href="{{ path('app_recipe_edit', {id: recipe.id}) }}">Modifier</a>
-        <form method="post" action="{{ path('app_recipe_delete', {id: recipe.id}) }}">
-            <button type="submit">Supprimer</button>
-        </form>
-    {% endif %}
-    {{ average ? 'Note moyenne : ' ~ average ~ '/5' : 'Pas encore noté' }}
+        {# Fil d'ariane #}
+        <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+            <a href="{{ path('app_recipe') }}" class="hover:text-orange-600 transition-colors">Recettes</a>
+            <span>/</span>
+            <span class="text-gray-700 truncate">{{ recipe.title }}</span>
+        </div>
 
-    {% if app.user %}
-        <form method="post" action="{{ path('app_favorite_toggle', {id: recipe.id}) }}">
-            <button type="submit">{{ isFavorite ? '★' : '☆' }}</button>
-        </form>
+        {# Titre + méta #}
+        <h1 class="font-playfair text-3xl lg:text-4xl font-bold text-gray-800 mb-4">{{ recipe.title }}</h1>
 
-        <form method="post" action="{{ path('app_recipe_rating', {id: recipe.id}) }}">
-            {% for i in 1..5 %}
-                <label>
-                    <input type="radio" name="score" value="{{ i }}"
-                        {{ userRating and userRating.score == i ? 'checked' : '' }}>
-                    {{ i }}
-                </label>
-            {% endfor %}
-            <button type="submit">Noter</button>
-        </form>
-    {% endif %}
+        <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 mb-6">
+            <span>🏷️ {{ recipe.category.name }}</span>
+            <span>•</span>
+            <span>⏱ {{ recipe.duration }} min</span>
+            <span>•</span>
+            <span>👤 {{ recipe.servings }} personnes</span>
+            <span>•</span>
+            <span>👨‍🍳 {{ recipe.author.username }}</span>
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-medium
+                {% if recipe.difficulty == 'facile' %}bg-green-100 text-green-700
+                {% elseif recipe.difficulty == 'moyen' %}bg-amber-100 text-amber-700
+                {% else %}bg-red-100 text-red-700{% endif %}">
+                {{ recipe.difficulty|capitalize }}
+            </span>
+        </div>
+
+        {# Image placeholder #}
+        <div class="h-64 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center mb-8">
+            <span class="text-7xl">🍽️</span>
+        </div>
+
+        {# Actions #}
+        <div class="flex flex-wrap items-center gap-3 mb-8">
+            {% if app.user == recipe.author %}
+                <a href="{{ path('app_recipe_edit', {id: recipe.id}) }}"
+                    class="px-5 py-2 bg-amber-100 text-amber-800 rounded-full text-sm font-medium hover:bg-amber-200 transition-colors">
+                    ✏️ Modifier
+                </a>
+                <form method="post" action="{{ path('app_recipe_delete', {id: recipe.id}) }}"
+                    onsubmit="return confirm('Supprimer cette recette ?')">
+                    <button type="submit" class="px-5 py-2 bg-red-100 text-red-700 rounded-full text-sm font-medium hover:bg-red-200 transition-colors">
+                        🗑 Supprimer
+                    </button>
+                </form>
+            {% endif %}
+
+            {% if app.user %}
+                <form method="post" action="{{ path('app_favorite_toggle', {id: recipe.id}) }}">
+                    <button type="submit" class="px-5 py-2 rounded-full text-sm font-medium transition-colors
+                        {{ isFavorite ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-orange-100 text-orange-700 hover:bg-orange-200' }}">
+                        {{ isFavorite ? '★ Favori' : '☆ Ajouter aux favoris' }}
+                    </button>
+                </form>
+            {% endif %}
+
+            <div class="ml-auto font-medium {{ average ? 'text-amber-500' : 'text-gray-400' }}">
+                ⭐ {{ average ? average ~ '/5' : 'Pas encore noté' }}
+            </div>
+        </div>
+
+        {# Description #}
+        <div class="bg-white rounded-2xl p-6 mb-6 shadow-sm">
+            <h2 class="font-playfair text-xl font-bold text-gray-800 mb-3">Description</h2>
+            <p class="text-gray-600 leading-relaxed">{{ recipe.description }}</p>
+        </div>
+
+        {# Étapes #}
+        <div class="bg-white rounded-2xl p-6 mb-6 shadow-sm">
+            <h2 class="font-playfair text-xl font-bold text-gray-800 mb-3">Étapes</h2>
+            <p class="text-gray-600 leading-relaxed whitespace-pre-line">{{ recipe.steps }}</p>
+        </div>
+
+        {# Notation #}
+        {% if app.user and app.user != recipe.author %}
+            <div class="bg-orange-50 rounded-2xl p-6 border border-orange-100">
+                <h2 class="font-playfair text-xl font-bold text-gray-800 mb-4">
+                    {{ userRating ? 'Votre note' : 'Noter cette recette' }}
+                </h2>
+                <form method="post" action="{{ path('app_recipe_rating', {id: recipe.id}) }}" class="flex items-center gap-4 flex-wrap">
+                    <div class="flex gap-1">
+                        {% for i in 1..5 %}
+                            <label class="cursor-pointer">
+                                <input type="radio" name="score" value="{{ i }}" class="sr-only"
+                                    {{ userRating and userRating.score == i ? 'checked' : '' }}>
+                                <span class="text-3xl hover:scale-125 transition-transform inline-block
+                                    {{ userRating and userRating.score >= i ? 'text-amber-400' : 'text-gray-200' }}">★</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-full text-sm font-medium transition-colors">
+                        {{ userRating ? 'Modifier ma note' : 'Noter' }}
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+
+    </div>
 {% endblock %}

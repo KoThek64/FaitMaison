@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Recipe;
+use App\Form\RecipeFilterType;
 use App\Form\RecipeType;
 use App\Repository\FavoriteRepository;
 use App\Repository\RatingRepository;
@@ -16,11 +17,15 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class RecipeController extends AbstractController
 {
-    #[Route('/recettes', name: 'app_recipe')]
-    public function index(RecipeRepository $recipes): Response
+    #[Route('/recettes', name: 'app_recipe', methods: ['GET'])]
+    public function index(RecipeRepository $recipes, Request $request): Response
     {
-        $all = $recipes->findAll();
-        return $this->render('recipe/index.html.twig', ['recipes' => $all]);
+        $form = $this->createForm(RecipeFilterType::class, null, ['method' => 'GET']);
+        $form->handleRequest($request);
+        $data = $form->isSubmitted() ? $form->getData() : [];
+
+        $all = $recipes->findPublished($data);
+        return $this->render('recipe/index.html.twig', ['recipes' => $all, 'form' => $form]);
     }
 
     #[IsGranted('ROLE_USER')]

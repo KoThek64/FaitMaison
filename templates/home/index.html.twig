@@ -1,14 +1,61 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Page d'acceuil{% endblock %}
+{% block title %}Accueil{% endblock %}
 
 {% block body %}
-    <h1>Dernières recettes</h1>
-    {% for recipe in recipes %}
-        <a href="{{ path('app_recipe_show', {id: recipe.id}) }}">{{ recipe.title }}</a>
-        {{ recipe.category.name }}
-        {{ recipe.difficulty }}
-    {% else %}
-        <h1>Aucunes recettes publiées</h1>
-    {% endfor %}
+    {# Hero avec recherche #}
+    <div class="bg-gradient-to-br from-orange-500 to-amber-600 py-20 px-6 text-center">
+        <h1 class="font-playfair text-4xl lg:text-5xl font-bold text-white mb-4">
+            Des recettes maison,<br>partagées avec amour
+        </h1>
+        <p class="text-orange-100 text-lg mb-8">Découvrez des recettes créées par notre communauté</p>
+        <form action="{{ path('app_recipe') }}" method="get" class="max-w-lg mx-auto flex shadow-xl rounded-full overflow-hidden">
+            <input type="text" name="recipe_filter_type[search]" placeholder="Rechercher une recette..."
+                class="flex-1 px-5 py-3 text-gray-800 focus:outline-none text-sm lg:text-base border-0 rounded-none">
+            <button type="submit" class="bg-amber-800 text-white px-6 py-3 hover:bg-amber-900 transition-colors font-medium text-sm shrink-0">
+                Rechercher
+            </button>
+        </form>
+    </div>
+
+    {# Recettes récentes #}
+    <div class="p-6 lg:p-10">
+        <h2 class="font-playfair text-2xl lg:text-3xl font-bold text-gray-800 mb-6">Dernières recettes</h2>
+
+        {% if recipes is empty %}
+            <div class="text-center py-20 text-gray-400">
+                <div class="text-5xl mb-4">🍽️</div>
+                <p class="text-lg">Aucune recette publiée pour l'instant.</p>
+            </div>
+        {% else %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for recipe in recipes %}
+                    <a href="{{ path('app_recipe_show', {id: recipe.id}) }}"
+                        class="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                        <div class="h-44 bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
+                            <span class="text-5xl">🍽️</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-playfair text-lg font-bold text-gray-800 mb-2 group-hover:text-orange-600 transition-colors line-clamp-1">
+                                {{ recipe.title }}
+                            </h3>
+                            <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-3">
+                                <span>🏷️ {{ recipe.category.name }}</span>
+                                <span>•</span>
+                                <span>⏱ {{ recipe.duration }} min</span>
+                                <span>•</span>
+                                <span>👤 {{ recipe.servings }} pers.</span>
+                            </div>
+                            <span class="inline-block px-3 py-1 rounded-full text-xs font-medium
+                                {% if recipe.difficulty == 'facile' %}bg-green-100 text-green-700
+                                {% elseif recipe.difficulty == 'moyen' %}bg-amber-100 text-amber-700
+                                {% else %}bg-red-100 text-red-700{% endif %}">
+                                {{ recipe.difficulty|capitalize }}
+                            </span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}

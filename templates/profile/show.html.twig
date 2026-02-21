@@ -1,18 +1,64 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Profil{% endblock %}
+{% block title %}Profil de {{ user.username }}{% endblock %}
 
 {% block body %}
-    {{ user.username }}
-    {{ user.createdAt|date('d/m/Y') }}
-    {% for recipe in user.recipes %}
-        {% if recipe.isPublished %}
-            <a href="{{ path('app_recipe_show', {id: recipe.id}) }}">{{ recipe.title }}</a>
+    <div class="max-w-3xl mx-auto p-6 lg:p-10">
+
+        {# Header profil #}
+        <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 flex items-center gap-6">
+            <div class="w-20 h-20 rounded-full bg-orange-500 flex items-center justify-center text-white text-3xl font-bold shrink-0">
+                {{ user.username|first|upper }}
+            </div>
+            <div class="flex-1 min-w-0">
+                <h1 class="font-playfair text-2xl font-bold text-gray-800">{{ user.username }}</h1>
+                <p class="text-gray-500 text-sm">Membre depuis le {{ user.createdAt|date('d/m/Y') }}</p>
+            </div>
+            {% if app.user == user %}
+                <a href="{{ path('app_profile_edit') }}" class="px-5 py-2 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-full text-sm font-medium transition-colors shrink-0">
+                    ✏️ Modifier
+                </a>
+            {% endif %}
+        </div>
+
+        {# Recettes publiées #}
+        <h2 class="font-playfair text-xl font-bold text-gray-800 mb-4">Recettes publiées</h2>
+        <div class="space-y-3 mb-8">
+            {% set hasPublished = false %}
+            {% for recipe in user.recipes %}
+                {% if recipe.isPublished %}
+                    {% set hasPublished = true %}
+                    <a href="{{ path('app_recipe_show', {id: recipe.id}) }}"
+                        class="flex items-center gap-4 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all group">
+                        <div class="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-2xl shrink-0">🍽️</div>
+                        <span class="font-medium text-gray-800 group-hover:text-orange-600 transition-colors truncate">{{ recipe.title }}</span>
+                    </a>
+                {% endif %}
+            {% endfor %}
+            {% if not hasPublished %}
+                <p class="text-gray-400 text-sm py-4">Aucune recette publiée.</p>
+            {% endif %}
+        </div>
+
+        {# Favoris (visible uniquement par le propriétaire) #}
+        {% if app.user == user %}
+            <h2 class="font-playfair text-xl font-bold text-gray-800 mb-4">Mes favoris</h2>
+            <div class="space-y-3">
+                {% if user.favorites is empty %}
+                    <p class="text-gray-400 text-sm py-4">Aucun favori pour l'instant.</p>
+                {% else %}
+                    {% for favori in user.favorites %}
+                        {% if favori.recipe %}
+                            <a href="{{ path('app_recipe_show', {id: favori.recipe.id}) }}"
+                                class="flex items-center gap-4 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all group">
+                                <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-2xl shrink-0">★</div>
+                                <span class="font-medium text-gray-800 group-hover:text-orange-600 transition-colors truncate">{{ favori.recipe.title }}</span>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
         {% endif %}
-    {% endfor %}
-    {% for favori in user.favorites %}
-        {% if favori.recipe %}
-            <a href="{{ path('app_recipe_show', {id: favori.recipe.id}) }}">{{ favori.recipe.title }}</a>
-        {% endif %}
-    {% endfor %}
+
+    </div>
 {% endblock %}
