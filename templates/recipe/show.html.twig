@@ -79,20 +79,20 @@
 
     {# Notation #}
     {% if app.user and app.user != recipe.author %}
-        <div style="background:linear-gradient(135deg, var(--color-parchment), white); border:1px solid var(--color-cream-border); border-radius:1.25rem; padding:1.75rem;">
-            <h2 style="font-size:1.25rem; margin-bottom:1.25rem;">{{ userRating ? 'Votre note' : 'Noter cette recette' }}</h2>
-            <form method="post" action="{{ path('app_recipe_rating', {id: recipe.id}) }}" style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap;">
-                <div class="star-group" style="display:flex; gap:0.25rem; flex-direction:row-reverse;">
+        <div id="rating" style="display:inline-block; background:linear-gradient(135deg, var(--color-parchment), white); border:1px solid var(--color-cream-border); border-radius:1.25rem; padding:1.25rem 1.5rem;">
+            <p style="font-family:var(--font-crimson); font-size:0.8125rem; letter-spacing:0.05em; text-transform:uppercase; color:var(--color-ink-muted); margin-bottom:0.5rem;">
+                {{ userRating ? 'Votre note' : 'Noter cette recette' }}
+            </p>
+            <form method="post" action="{{ path('app_recipe_rating', {id: recipe.id}) }}">
+                <div class="star-group" style="display:flex; gap:0.125rem; flex-direction:row-reverse;">
                     {% for i in 5..1 %}
                         <input type="radio" name="score" value="{{ i }}" id="star-{{ i }}" class="star-input"
-                            {{ userRating and userRating.score == i ? 'checked' : '' }}>
+                            {{ userRating and userRating.score == i ? 'checked' : '' }}
+                            onchange="sessionStorage.setItem('restoreScroll', window.scrollY); this.closest('form').submit()">
                         <label for="star-{{ i }}" class="star-label" title="{{ i }} étoile{{ i > 1 ? 's' : '' }}"
                             style="{{ userRating and userRating.score >= i ? 'color:var(--color-gold);' : '' }}">★</label>
                     {% endfor %}
                 </div>
-                <button type="submit" class="btn-primary">
-                    {{ userRating ? 'Mettre à jour' : 'Valider' }}
-                </button>
             </form>
         </div>
     {% endif %}
