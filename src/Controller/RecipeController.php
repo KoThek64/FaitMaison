@@ -39,9 +39,15 @@ final class RecipeController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()){
             $recipe->setAuthor($this->getUser());
             $recipe->setCreatedAt(new \DateTimeImmutable());
+            $recipe->setIsPublished($request->request->get('action') === 'publish');
 
             $em->persist($recipe);
             $em->flush();
+
+            $this->addFlash(
+                'success',
+                $recipe->isPublished() ? 'Recette publiée avec succès !' : 'Recette enregistrée en brouillon.'
+            );
 
             return $this->redirectToRoute('app_recipe');
         }
@@ -87,9 +93,15 @@ final class RecipeController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()){
             $recipe->setUpdatedAt(new \DateTime());
+            $recipe->setIsPublished($request->request->get('action') === 'publish');
 
             $em->persist($recipe);
             $em->flush();
+
+            $this->addFlash(
+                'success',
+                $recipe->isPublished() ? 'Recette publiée avec succès !' : 'Recette repassée en brouillon.'
+            );
 
             return $this->redirectToRoute('app_recipe_show', ['id' => $recipe->getId()]);
         }
