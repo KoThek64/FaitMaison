@@ -16,7 +16,7 @@ class RecipeRepository extends ServiceEntityRepository
         parent::__construct($registry, Recipe::class);
     }
 
-    public function findPublished(array $filters = []) {
+    public function findPublished(array $filters = [], ?int $limit = null) {
         $qb = $this->createQueryBuilder('r')
             ->andWhere('r.isPublished = true')
             ->orderBy('r.createdAt','DESC');
@@ -44,6 +44,10 @@ class RecipeRepository extends ServiceEntityRepository
         if (!empty($filters['servings'])){
             $qb->andWhere('r.servings = :servings')
                 ->setParameter('servings' , $filters['servings']);
+        }
+
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
         }
 
         return $qb->getQuery()->getResult();
