@@ -8,7 +8,9 @@ use App\Form\RecipeType;
 use App\Repository\FavoriteRepository;
 use App\Repository\RatingRepository;
 use App\Repository\RecipeRepository;
+use App\Service\ImageUploader;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,16 +32,22 @@ final class RecipeController extends AbstractController
 
     #[IsGranted('ROLE_USER')]
     #[Route('/recette/ajouter', name: 'app_recipe_add')]
-    public function new(Request $request, EntityManagerInterface $em) : Response
+    public function new(Request $request, EntityManagerInterface $em, ImageUploader $imageUploader): Response
     {
-        $recipe = new Recipe;
+        $recipe = new Recipe();
         $form = $this->createForm(RecipeType::class, $recipe);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()){
+        if ($form->isSubmitted() && $form->isValid()) {
             $recipe->setAuthor($this->getUser());
             $recipe->setCreatedAt(new \DateTimeImmutable());
             $recipe->setIsPublished($request->request->get('action') === 'publish');
+
+            /** @var UploadedFile|null $fichier */
+            $fichier = $form->get('imageFile')->getData();
+            if ($fichier) {
+                $recipe->setImageName($imageUploader->upload($fichier));
+            }
 
             $em->persist($recipe);
             $em->flush();
@@ -55,8 +63,8 @@ final class RecipeController extends AbstractController
         return $this->render('recipe/new.html.twig', ['form' => $form]);
     }
 
-    #[Route('/recette/{id}', name: 'app_recipe_show')]
-    public function show(Recipe $recipe, FavoriteRepository $favoriteRepository, RatingRepository $ratingRepository) : Response
+    #[Route('/recette/{id}', name: 'app_recipe_show', requirements: ['id' => '\d+'])]
+    public function show(Recipe $recipe, FavoriteRepository $favoriteRepository, RatingRepository $ratingRepository): Response
     {
         $isFavorite = false;
         $userRating = null;
@@ -83,7 +91,8 @@ final class RecipeController extends AbstractController
     }
 
     #[Route('/recette/{id}/modifier', name: 'app_recipe_edit', methods: ['GET', 'POST'])]
-    public function edit(Recipe $recipe, Request $request, EntityManagerInterface $em) : Response {
+    public function edit(Recipe $recipe, Request $request, EntityManagerInterface $em, ImageUploader $imageUploader): Response
+    {
         if ($this->getUser() !== $recipe->getAuthor()) {
             throw $this->createAccessDeniedException();
         }
@@ -91,11 +100,19 @@ final class RecipeController extends AbstractController
         $form = $this->createForm(RecipeType::class, $recipe);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()){
+        if ($form->isSubmitted() && $form->isValid()) {
             $recipe->setUpdatedAt(new \DateTime());
             $recipe->setIsPublished($request->request->get('action') === 'publish');
 
-            $em->persist($recipe);
+            /** @var UploadedFile|null $fichier */
+            $fichier = $form->get('imageFile')->getData();
+            if ($fichier) {
+                if ($recipe->getImageName()) {
+                    $imageUploader->delete($recipe->getImageName());
+                }
+                $recipe->setImageName($imageUploader->upload($fichier));
+            }
+
             $em->flush();
 
             $this->addFlash(
@@ -110,9 +127,14 @@ final class RecipeController extends AbstractController
     }
 
     #[Route('/recette/{id}/supprimer', name: 'app_recipe_delete', methods: ['POST'])]
-    public function delete(Recipe $recipe, EntityManagerInterface $em) : Response{
+    public function delete(Recipe $recipe, EntityManagerInterface $em, ImageUploader $imageUploader): Response
+    {
         if ($this->getUser() !== $recipe->getAuthor()) {
             throw $this->createAccessDeniedException();
+        }
+
+        if ($recipe->getImageName()) {
+            $imageUploader->delete($recipe->getImageName());
         }
 
         $em->remove($recipe);
