@@ -8,14 +8,41 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImageUploaderTest extends TestCase
 {
+    private string $dossierTemp;
+    private ImageUploader $imageUploader;
     protected function setUp(): void
     {
-        $dossierTemp = sys_get_temp_dir() . '/uploads_test';
-        $imageUploader = new ImageUploader($fichier);
+        $this->dossierTemp = sys_get_temp_dir() . '/uploads_test';
+        mkdir($this->dossierTemp, 0777, true);
+        $this->imageUploader = new ImageUploader($this->dossierTemp);
     }
 
     protected function tearDown(): void
     {
+        foreach (glob($this->dossierTemp . "/*") as $fichier){
+            unlink($fichier);
+        }
+        rmdir($this->dossierTemp);
     }
+
+    public function testUpload()
+    {
+        $fichierTempChemin = tempnam(sys_get_temp_dir(), 'image.jpg');
+        file_put_contents($fichierTempChemin,'contenu_test');
+        $uploadedFile = new UploadedFile($fichierTempChemin, 'image.jpg', 'image/jpeg', null, true);
+
+        $fichier = $this->imageUploader->upload($uploadedFile);
+
+        self::assertFileExists($this->dossierTemp . '/' . $fichier);
+
+    }
+
+    public function testDelete()
+    {
+        $fichier = file_put_contents($this->dossierTemp, 'contenu_test');
+        $this->imageUploader->delete($fichier);
+        self::assertFileDoesNotExist($fichier);
+    }
+
 
 }
