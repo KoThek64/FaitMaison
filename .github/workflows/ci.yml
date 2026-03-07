@@ -1,0 +1,29 @@
+name: ci.yml
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+        services:
+            postgres:
+                image: postgres:16-alpine
+                env:
+                    POSTGRES_DB: fait_maison_test
+                    POSTGRES_USER: app
+                    POSTGRES_PASSWORD: "!ChangeMe!"
+                ports:
+                    - 5432:5432
+        env:
+            DATABASE_URL: "postgresql://app:!ChangeMe!@127.0.0.1:5432/fait_maison_test?serverVersion=16"
+        steps:
+            -   uses: actions/checkout@v4
+            -   uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.4'
+                    extensions: pdo_pgsql
+            -   run: composer install
+            -   run: php bin/console doctrine:migrations:migrate --env=test --no-interaction
+            -   run: php bin/phpunit
