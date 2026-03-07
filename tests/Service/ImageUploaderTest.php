@@ -39,9 +39,10 @@ class ImageUploaderTest extends TestCase
 
     public function testDelete()
     {
-        $fichier = file_put_contents($this->dossierTemp, 'contenu_test');
-        $this->imageUploader->delete($fichier);
-        self::assertFileDoesNotExist($fichier);
+        $chemin = $this->dossierTemp . '/test.jpg';
+        file_put_contents($chemin, 'contenu_test');
+        $this->imageUploader->delete('test.jpg');
+        self::assertFileDoesNotExist($chemin);
     }
 
 
