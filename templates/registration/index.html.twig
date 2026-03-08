@@ -26,9 +26,10 @@
                 {{ form_errors(form.username) }}
             </div>
             <div>
-                {{ form_label(form.plainPassword, 'Mot de passe') }}
-                {{ form_widget(form.plainPassword, {attr: {placeholder: '8 caractères minimum'}}) }}
-                {{ form_errors(form.plainPassword) }}
+                {{ form_row(form.plainPassword.first, {attr: {placeholder: '8 caractères minimum'}}) }}
+            </div>
+            <div>
+                {{ form_row(form.plainPassword.second, {attr: {placeholder: 'Répétez le mot de passe'}}) }}
             </div>
 
             <button type="submit" class="btn-primary" style="width:100%; padding:0.875rem; font-size:1rem; margin-top:0.25rem;">

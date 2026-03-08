@@ -34,7 +34,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 50, unique: true)]
     private ?string $username = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -60,6 +60,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $favorites;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $bio = null;
 
     public function __construct()
     {
@@ -139,7 +142,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $data = (array) $this;
         $data["\0" . self::class . "\0password"] = hash('crc32c', $this->password);
-        
+
         return $data;
     }
 
@@ -263,6 +266,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $favorite->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBio(): ?string
+    {
+        return $this->bio;
+    }
+
+    public function setBio(?string $bio): static
+    {
+        $this->bio = $bio;
 
         return $this;
     }

@@ -13,7 +13,84 @@
     </div>
     <div class="form-card">
         {{ form_start(form, {attr: {style: 'display:flex; flex-direction:column; gap:1.25rem;'}}) }}
-        {{ form_widget(form) }}
+
+        {# Avatar #}
+        <div>
+            {{ form_label(form.avatarFile, 'Photo de profil') }}
+            <div style="display:flex; align-items:center; gap:1.25rem; margin-top:0.5rem;">
+
+                {# Aperçu avatar #}
+                <div id="avatar-preview" style="width:5rem; height:5rem; border-radius:50%; overflow:hidden; flex-shrink:0; border:2px solid var(--color-cream-border); background:var(--color-parchment); display:flex; align-items:center; justify-content:center;">
+                    {% if app.user.avatarName %}
+                        <img src="{{ asset('uploads/recipes/' ~ app.user.avatarName) }}" alt="Avatar actuel"
+                            style="width:100%; height:100%; object-fit:cover;">
+                    {% else %}
+                        <span style="font-family:var(--font-playfair); font-size:1.75rem; font-weight:700; color:var(--color-terracotta);">
+                            {{ app.user.username|first|upper }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                {# Bouton stylisé #}
+                <div>
+                    {{ form_widget(form.avatarFile, {attr: {style: 'display:none;'}}) }}
+                    <label for="{{ form.avatarFile.vars.id }}"
+                        style="display:inline-flex; align-items:center; gap:0.5rem; cursor:pointer; padding:0.5rem 1.125rem; border:1.5px solid var(--color-terracotta-soft); border-radius:0.625rem; font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-terracotta); background:transparent; transition:background .15s;"
+                        onmouseover="this.style.background='var(--color-terracotta-soft)'"
+                        onmouseout="this.style.background='transparent'">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Choisir une photo
+                    </label>
+                    <p id="avatar-filename" style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-ink-muted); margin-top:0.375rem;"></p>
+                </div>
+            </div>
+            {{ form_errors(form.avatarFile) }}
+        </div>
+
+        <script>
+        document.getElementById('{{ form.avatarFile.vars.id }}').addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+            document.getElementById('avatar-filename').textContent = file.name;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('avatar-preview').innerHTML =
+                    '<img src="' + e.target.result + '" style="width:100%; height:100%; object-fit:cover;">';
+            };
+            reader.readAsDataURL(file);
+        });
+        </script>
+
+        {# Bio #}
+        <div>
+            {{ form_label(form.bio, 'Bio') }}
+            {{ form_widget(form.bio, {attr: {placeholder: 'Parlez-nous de vous en quelques mots…', rows: 3}}) }}
+            {{ form_errors(form.bio) }}
+        </div>
+
+        {# Email #}
+        <div>
+            {{ form_label(form.email) }}
+            {{ form_widget(form.email) }}
+            {{ form_errors(form.email) }}
+        </div>
+
+        {# Username #}
+        <div>
+            {{ form_label(form.username, "Nom d'utilisateur") }}
+            {{ form_widget(form.username) }}
+            {{ form_errors(form.username) }}
+        </div>
+
+        {# Mot de passe #}
+        <div style="border-top:1px solid var(--color-cream-border); padding-top:1.25rem; margin-top:0.25rem;">
+            <p style="font-family:var(--font-crimson); font-size:0.875rem; color:var(--color-ink-muted); margin-bottom:0.75rem;">Laissez vide pour ne pas changer le mot de passe.</p>
+            <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                {{ form_row(form.plainPassword.first) }}
+                {{ form_row(form.plainPassword.second) }}
+            </div>
+        </div>
+
         <button type="submit" class="btn-primary" style="align-self:flex-start; padding:0.75rem 2rem; font-size:1rem; margin-top:0.25rem;">
             Enregistrer
         </button>

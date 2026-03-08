@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\ProfileType;
+use App\Service\ImageUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +23,7 @@ final class ProfileController extends AbstractController
 
     #[IsGranted('ROLE_USER')]
     #[Route('/profil/modifier', name: 'app_profile_edit', methods: ['GET','POST'])]
-    public function edit(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher)
+    public function edit(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher, ImageUploader $imageUploader)
     {
         $user = $this->getUser();
         if (!$user instanceof User){
@@ -33,6 +34,16 @@ final class ProfileController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()){
+
+            $fichier = $form->get('avatarFile')->getData();
+            if ($fichier !== null){
+                if ($user->getAvatarName() != null){
+                    $imageUploader->delete($user->getAvatarName());
+                }
+                $result = $imageUploader->upload($fichier);
+                $user->setAvatarName($result);
+            }
+
             $password = $form->get('plainPassword')->getData();
             if ($password != null){
                 $passwordHash = $hasher->hashPassword($user, $password);

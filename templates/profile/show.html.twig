@@ -6,11 +6,19 @@
 
     {# En-tête profil #}
     <div style="background:linear-gradient(135deg, var(--color-espresso) 0%, var(--color-espresso-mid) 100%); border-radius:1.5rem; padding:2rem; display:flex; align-items:center; gap:1.5rem; margin-bottom:2.5rem; flex-wrap:wrap;">
-        <div style="width:4.5rem; height:4.5rem; border-radius:50%; background:var(--color-terracotta); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:1.75rem; font-weight:700; color:var(--color-cream); flex-shrink:0;">
-            {{ user.username|first|upper }}
-        </div>
+        {% if user.avatarName %}
+            <img src="{{ asset('uploads/recipes/' ~ user.avatarName) }}" alt="{{ user.username }}"
+                style="width:4.5rem; height:4.5rem; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid rgba(250,244,232,0.15);">
+        {% else %}
+            <div style="width:4.5rem; height:4.5rem; border-radius:50%; background:var(--color-terracotta); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:1.75rem; font-weight:700; color:var(--color-cream); flex-shrink:0;">
+                {{ user.username|first|upper }}
+            </div>
+        {% endif %}
         <div style="flex:1; min-width:0;">
             <h1 style="font-size:1.625rem; color:var(--color-cream); margin-bottom:0.25rem;">{{ user.username }}</h1>
+            {% if user.bio %}
+                <p style="font-family:var(--font-crimson); font-size:1rem; color:rgba(250,244,232,0.8); margin-bottom:0.25rem;">{{ user.bio }}</p>
+            {% endif %}
             <p style="font-family:var(--font-crimson); font-size:0.875rem; color:rgba(250,244,232,0.5);">
                 Membre depuis {{ user.createdAt|date('F Y') }}
             </p>

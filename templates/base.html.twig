@@ -57,9 +57,14 @@
         <div style="padding:1rem 0.75rem 1.5rem; border-top:1px solid rgba(250,244,232,0.08); position:relative; z-index:1;">
             {% if is_granted('ROLE_USER') %}
                 <div style="display:flex; align-items:center; gap:0.75rem; padding:0 0.25rem 0.75rem; margin-bottom:0.5rem; border-bottom:1px solid rgba(250,244,232,0.06);">
-                    <div style="width:2.25rem; height:2.25rem; border-radius:50%; background:var(--color-terracotta); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:1rem; font-weight:700; color:var(--color-cream); flex-shrink:0;">
-                        {{ app.user.username|first|upper }}
-                    </div>
+                    {% if app.user.avatarName %}
+                        <img src="{{ asset('uploads/recipes/' ~ app.user.avatarName) }}" alt="{{ app.user.username }}"
+                            style="width:2.25rem; height:2.25rem; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid rgba(250,244,232,0.15);">
+                    {% else %}
+                        <div style="width:2.25rem; height:2.25rem; border-radius:50%; background:var(--color-terracotta); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:1rem; font-weight:700; color:var(--color-cream); flex-shrink:0;">
+                            {{ app.user.username|first|upper }}
+                        </div>
+                    {% endif %}
                     <div style="min-width:0;">
                         <div style="font-family:var(--font-crimson); font-size:0.875rem; font-weight:600; color:rgba(250,244,232,0.9); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ app.user.username }}</div>
                         <div style="font-family:var(--font-crimson); font-size:0.75rem; color:rgba(250,244,232,0.4);">Membre</div>
