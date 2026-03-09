@@ -28,6 +28,11 @@ final class FeedController extends AbstractController
             12
         );
 
-        return $this->render('feed/index.html.twig', ['pagination' => $pagination]);
+        $recommended = $recipeRepository->findRecommended($currentUser);
+
+        return $this->render('feed/index.html.twig', [
+            'pagination'  => $pagination,
+            'recommended' => $recommended,
+        ]);
     }
 }
