@@ -56,12 +56,6 @@ class Recipe
     private ?User $author = null;
 
     /**
-     * @var Collection<int, RecipeIngredient>
-     */
-    #[ORM\OneToMany(targetEntity: RecipeIngredient::class, mappedBy: 'recipe')]
-    private Collection $recipeIngredients;
-
-    /**
      * @var Collection<int, Rating>
      */
     #[ORM\OneToMany(targetEntity: Rating::class, mappedBy: 'recipe')]
@@ -93,7 +87,6 @@ class Recipe
 
     public function __construct()
     {
-        $this->recipeIngredients = new ArrayCollection();
         $this->ratings = new ArrayCollection();
         $this->favorites = new ArrayCollection();
         $this->tags = new ArrayCollection();
@@ -246,36 +239,6 @@ class Recipe
     public function setAuthor(?User $author): static
     {
         $this->author = $author;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, RecipeIngredient>
-     */
-    public function getRecipeIngredients(): Collection
-    {
-        return $this->recipeIngredients;
-    }
-
-    public function addRecipeIngredient(RecipeIngredient $recipeIngredient): static
-    {
-        if (!$this->recipeIngredients->contains($recipeIngredient)) {
-            $this->recipeIngredients->add($recipeIngredient);
-            $recipeIngredient->setRecipe($this);
-        }
-
-        return $this;
-    }
-
-    public function removeRecipeIngredient(RecipeIngredient $recipeIngredient): static
-    {
-        if ($this->recipeIngredients->removeElement($recipeIngredient)) {
-            // set the owning side to null (unless already changed)
-            if ($recipeIngredient->getRecipe() === $this) {
-                $recipeIngredient->setRecipe(null);
-            }
-        }
 
         return $this;
     }

@@ -4,10 +4,8 @@ namespace App\DataFixtures;
 
 use App\Entity\Category;
 use App\Entity\Favorite;
-use App\Entity\Ingredient;
 use App\Entity\Rating;
 use App\Entity\Recipe;
-use App\Entity\RecipeIngredient;
 use App\Entity\Tag;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -49,16 +47,6 @@ class AppFixtures extends Fixture
             $tags[] = $tag;
         }
 
-        // Ingrédients
-        $ingredientNames = ['Farine', 'Sucre', 'Beurre', 'Oeufs', 'Lait', 'Sel', 'Poivre', 'Huile olive', 'Ail', 'Oignon', 'Tomate', 'Poulet', 'Boeuf', 'Pomme de terre', 'Carottes', 'Fromage', 'Creme fraiche', 'Levure', 'Basilic', 'Thym'];
-        $ingredients = [];
-        foreach ($ingredientNames as $name) {
-            $ingredient = new Ingredient();
-            $ingredient->setName($name);
-            $manager->persist($ingredient);
-            $ingredients[] = $ingredient;
-        }
-
         // Utilisateurs
         $users = [];
         for ($i = 0; $i < 10; $i++) {
@@ -73,7 +61,6 @@ class AppFixtures extends Fixture
 
         // Recettes
         $difficulties = ['facile', 'moyen', 'difficile'];
-        $units = ['g', 'kg', 'ml', 'L', 'pincee', null];
         $recipes = [];
 
         foreach ($users as $user) {
@@ -96,18 +83,6 @@ class AppFixtures extends Fixture
                 shuffle($shuffledTags);
                 foreach (array_slice($shuffledTags, 0, rand(0, 3)) as $tag) {
                     $recipe->addTag($tag);
-                }
-
-                // Ingrédients aléatoires (3 à 6)
-                $shuffledIngredients = $ingredients;
-                shuffle($shuffledIngredients);
-                foreach (array_slice($shuffledIngredients, 0, rand(3, 6)) as $ingredient) {
-                    $ri = new RecipeIngredient();
-                    $ri->setQuantity(rand(1, 500) / 10);
-                    $ri->setUnit($units[array_rand($units)]);
-                    $ri->setRecipe($recipe);
-                    $ri->setIngredient($ingredient);
-                    $manager->persist($ri);
                 }
 
                 $manager->persist($recipe);
