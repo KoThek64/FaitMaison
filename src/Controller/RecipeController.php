@@ -11,6 +11,7 @@ use App\Repository\RatingRepository;
 use App\Repository\RecipeRepository;
 use App\Service\ImageUploader;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,14 +22,19 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class RecipeController extends AbstractController
 {
     #[Route('/recettes', name: 'app_recipe', methods: ['GET'])]
-    public function index(RecipeRepository $recipes, Request $request): Response
+    public function index(RecipeRepository $recipes, Request $request, PaginatorInterface $paginator): Response
     {
         $form = $this->createForm(RecipeFilterType::class, null, ['method' => 'GET']);
         $form->handleRequest($request);
         $data = $form->isSubmitted() ? $form->getData() : [];
 
-        $all = $recipes->findPublished($data);
-        return $this->render('recipe/index.html.twig', ['recipes' => $all, 'form' => $form]);
+        $pagination = $paginator->paginate(
+            $recipes->findPublishedQuery($data),
+            $request->query->getInt('page', 1),
+            12
+        );
+
+        return $this->render('recipe/index.html.twig', ['pagination' => $pagination, 'form' => $form]);
     }
 
     #[IsGranted('ROLE_USER')]
