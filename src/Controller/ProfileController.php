@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\ProfileType;
+use App\Repository\RatingRepository;
 use App\Service\ImageUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,9 +17,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ProfileController extends AbstractController
 {
     #[Route('/profil/{id}', name: 'app_profile_show', requirements: ['id' => '\d+'])]
-    public function show(User $user): Response
+    public function show(User $user, RatingRepository $ratingRepository): Response
     {
-        return $this->render('profile/show.html.twig', ['user' => $user]);
+        $averageRating = $ratingRepository->findAverageForUser($user);
+        return $this->render('profile/show.html.twig', ['user' => $user , 'averageRating' => $averageRating]);
     }
 
     #[IsGranted('ROLE_USER')]

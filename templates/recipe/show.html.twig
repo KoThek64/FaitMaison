@@ -25,7 +25,7 @@
         <span style="color:var(--color-cream-border);">·</span>
         <span>👤 {{ recipe.servings }} personnes</span>
         <span style="color:var(--color-cream-border);">·</span>
-        <span>Par <strong style="color:var(--color-ink);">{{ recipe.author.username }}</strong></span>
+        <span>Par <a href="{{ path('app_profile_show', {id: recipe.author.id}) }}" style="color:var(--color-terracotta); text-decoration:none; font-weight:600; transition:opacity .15s;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">{{ recipe.author.username }}</a></span>
         <span class="badge {{ recipe.difficulty == 'facile' ? 'badge-easy' : (recipe.difficulty == 'moyen' ? 'badge-medium' : 'badge-hard') }}">
             {{ recipe.difficulty }}
         </span>
@@ -82,6 +82,26 @@
         <h2 style="font-size:1.25rem; margin-bottom:0.875rem;">Préparation</h2>
         <div style="font-family:var(--font-crimson); font-size:1.0625rem; color:var(--color-ink-muted); line-height:1.8; white-space:pre-line;">{{ recipe.steps }}</div>
     </div>
+
+    {# Carte auteur #}
+    <a href="{{ path('app_profile_show', {id: recipe.author.id}) }}"
+        style="display:flex; align-items:center; gap:1rem; background:white; border-radius:1.25rem; padding:1.125rem 1.375rem; margin-bottom:1.5rem; box-shadow:0 2px 8px rgba(44,24,16,0.06), 0 0 0 1px rgba(44,24,16,0.04); text-decoration:none; transition:box-shadow .2s, transform .2s;"
+        onmouseover="this.style.boxShadow='0 8px 24px rgba(44,24,16,0.1), 0 0 0 1px rgba(44,24,16,0.06)'; this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.boxShadow='0 2px 8px rgba(44,24,16,0.06), 0 0 0 1px rgba(44,24,16,0.04)'; this.style.transform='translateY(0)'">
+        {% if recipe.author.avatarName %}
+            <img src="{{ asset('uploads/recipes/' ~ recipe.author.avatarName) }}" alt="{{ recipe.author.username }}"
+                style="width:3rem; height:3rem; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-cream-border);">
+        {% else %}
+            <div style="width:3rem; height:3rem; border-radius:50%; background:linear-gradient(135deg, var(--color-terracotta), var(--color-terracotta-dark)); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:1.125rem; font-weight:700; color:var(--color-cream); flex-shrink:0;">
+                {{ recipe.author.username|first|upper }}
+            </div>
+        {% endif %}
+        <div style="flex:1; min-width:0;">
+            <div style="font-family:var(--font-crimson); font-size:0.75rem; color:var(--color-sand); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.125rem;">Recette de</div>
+            <div style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink);">{{ recipe.author.username }}</div>
+        </div>
+        <svg style="color:var(--color-sand); flex-shrink:0;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
 
     {# Notation #}
     {% if app.user and app.user != recipe.author %}

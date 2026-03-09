@@ -2,121 +2,226 @@
 {% block title %}{{ user.username }}{% endblock %}
 
 {% block body %}
-<div style="max-width:52rem; margin:0 auto; padding:2.5rem 1.5rem 4rem;">
+{% set publishedRecipes = user.recipes|filter(r => r.isPublished) %}
+{% set draftRecipes     = user.recipes|filter(r => not r.isPublished) %}
+{% set isOwner          = app.user == user %}
 
-    {# En-tête profil #}
-    <div style="background:linear-gradient(135deg, var(--color-espresso) 0%, var(--color-espresso-mid) 100%); border-radius:1.5rem; padding:2rem; display:flex; align-items:center; gap:1.5rem; margin-bottom:2.5rem; flex-wrap:wrap;">
-        {% if user.avatarName %}
-            <img src="{{ asset('uploads/recipes/' ~ user.avatarName) }}" alt="{{ user.username }}"
-                style="width:4.5rem; height:4.5rem; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid rgba(250,244,232,0.15);">
-        {% else %}
-            <div style="width:4.5rem; height:4.5rem; border-radius:50%; background:var(--color-terracotta); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:1.75rem; font-weight:700; color:var(--color-cream); flex-shrink:0;">
-                {{ user.username|first|upper }}
-            </div>
-        {% endif %}
-        <div style="flex:1; min-width:0;">
-            <h1 style="font-size:1.625rem; color:var(--color-cream); margin-bottom:0.25rem;">{{ user.username }}</h1>
-            {% if user.bio %}
-                <p style="font-family:var(--font-crimson); font-size:1rem; color:rgba(250,244,232,0.8); margin-bottom:0.25rem;">{{ user.bio }}</p>
+<div style="max-width:56rem; margin:0 auto; padding:2.5rem 1.5rem 5rem;">
+
+    {# ── En-tête profil ── #}
+    <div style="background:linear-gradient(135deg, var(--color-espresso) 0%, var(--color-espresso-mid) 60%, #3D2015 100%); border-radius:1.75rem; padding:2.25rem 2rem; margin-bottom:2.5rem; position:relative; overflow:hidden;">
+
+        {# Texture de fond #}
+        <div style="position:absolute; inset:0; background-image:radial-gradient(circle, rgba(250,244,232,0.025) 1px, transparent 1px); background-size:18px 18px; pointer-events:none;"></div>
+        {# Accent décoratif #}
+        <div style="position:absolute; top:-4rem; right:-4rem; width:14rem; height:14rem; border-radius:50%; background:radial-gradient(circle, rgba(196,98,45,0.18) 0%, transparent 70%); pointer-events:none;"></div>
+
+        <div style="position:relative; z-index:1; display:flex; align-items:flex-start; gap:1.75rem; flex-wrap:wrap;">
+
+            {# Avatar #}
+            {% if user.avatarName %}
+                <img src="{{ asset('uploads/recipes/' ~ user.avatarName) }}" alt="{{ user.username }}"
+                    style="width:5.5rem; height:5.5rem; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid rgba(201,150,58,0.5); box-shadow:0 0 0 4px rgba(201,150,58,0.12);">
+            {% else %}
+                <div style="width:5.5rem; height:5.5rem; border-radius:50%; background:linear-gradient(135deg, var(--color-terracotta) 0%, var(--color-terracotta-dark) 100%); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:2rem; font-weight:700; color:var(--color-cream); flex-shrink:0; border:2px solid rgba(201,150,58,0.4); box-shadow:0 0 0 4px rgba(201,150,58,0.1);">
+                    {{ user.username|first|upper }}
+                </div>
             {% endif %}
-            <p style="font-family:var(--font-crimson); font-size:0.875rem; color:rgba(250,244,232,0.5);">
-                Membre depuis {{ user.createdAt|date('F Y') }}
-            </p>
-        </div>
-        {% if app.user == user %}
-            <a href="{{ path('app_profile_edit') }}" class="btn-ghost"
-                style="border-color:rgba(250,244,232,0.2); color:rgba(250,244,232,0.7); background:rgba(250,244,232,0.06); flex-shrink:0;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Modifier le profil
-            </a>
-        {% endif %}
-    </div>
 
-    {# Recettes publiées #}
-    <div class="section-heading">
-        <h2 style="font-size:1.375rem;">Recettes publiées</h2>
-    </div>
+            {# Infos #}
+            <div style="flex:1; min-width:0;">
+                <h1 style="font-size:1.75rem; color:var(--color-cream); margin-bottom:0.25rem; line-height:1.15;">{{ user.username }}</h1>
+                <p style="font-family:var(--font-crimson); font-size:0.8125rem; color:rgba(250,244,232,0.4); margin-bottom:0.875rem; letter-spacing:0.04em;">
+                    Membre depuis {{ user.createdAt|date('F Y') }}
+                </p>
+                {% if user.bio %}
+                    <p style="font-family:var(--font-crimson); font-size:1.0625rem; color:rgba(250,244,232,0.75); line-height:1.6; max-width:34rem; margin-bottom:1.25rem;">{{ user.bio }}</p>
+                {% else %}
+                    <div style="margin-bottom:1.25rem;"></div>
+                {% endif %}
 
-    {% set hasPublished = false %}
-    <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:2.5rem;">
-        {% for recipe in user.recipes %}
-            {% if recipe.isPublished %}
-                {% set hasPublished = true %}
-                <a href="{{ path('app_recipe_show', {id: recipe.id}) }}"
-                    style="display:flex; align-items:center; gap:1rem; background:white; border-radius:1rem; padding:1rem 1.25rem; text-decoration:none; box-shadow:0 1px 4px rgba(44,24,16,0.06); transition:box-shadow .2s, transform .2s;"
-                    onmouseover="this.style.boxShadow='0 4px 16px rgba(44,24,16,0.1)'; this.style.transform='translateX(4px)'"
-                    onmouseout="this.style.boxShadow='0 1px 4px rgba(44,24,16,0.06)'; this.style.transform='translateX(0)'">
-                    <div style="width:2.75rem; height:2.75rem; border-radius:0.625rem; background:var(--color-parchment); display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0; opacity:0.7;">🍽</div>
-                    <span style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ recipe.title }}</span>
-                    <svg style="margin-left:auto; flex-shrink:0; color:var(--color-sand);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                {# Stats #}
+                <div style="display:flex; gap:2rem; flex-wrap:wrap;">
+                    <div style="text-align:center;">
+                        <div style="font-family:var(--font-playfair); font-size:1.5rem; font-weight:700; color:var(--color-cream); line-height:1;">{{ publishedRecipes|length }}</div>
+                        <div style="font-family:var(--font-crimson); font-size:0.75rem; color:rgba(250,244,232,0.45); letter-spacing:0.06em; text-transform:uppercase; margin-top:0.2rem;">Recette{{ publishedRecipes|length > 1 ? 's' : '' }}</div>
+                    </div>
+                    {% if isOwner %}
+                        <div style="width:1px; background:rgba(250,244,232,0.1); align-self:stretch;"></div>
+                        <div style="text-align:center;">
+                            <div style="font-family:var(--font-playfair); font-size:1.5rem; font-weight:700; color:var(--color-cream); line-height:1;">{{ user.favorites|length }}</div>
+                            <div style="font-family:var(--font-crimson); font-size:0.75rem; color:rgba(250,244,232,0.45); letter-spacing:0.06em; text-transform:uppercase; margin-top:0.2rem;">Favori{{ user.favorites|length > 1 ? 's' : '' }}</div>
+                        </div>
+                    {% endif %}
+                    <div style="width:1px; background:rgba(250,244,232,0.1); align-self:stretch;"></div>
+                    <div style="text-align:center;">
+                        {% if averageRating > 0 %}
+                            <div style="font-family:var(--font-playfair); font-size:1.5rem; font-weight:700; color:var(--color-gold); line-height:1;">{{ averageRating }}</div>
+                        {% else %}
+                            <div style="font-family:var(--font-playfair); font-size:1.5rem; font-weight:700; color:rgba(250,244,232,0.25); line-height:1;">–</div>
+                        {% endif %}
+                        <div style="font-family:var(--font-crimson); font-size:0.75rem; color:rgba(250,244,232,0.45); letter-spacing:0.06em; text-transform:uppercase; margin-top:0.2rem;">Note moy.</div>
+                    </div>
+                </div>
+            </div>
+
+            {# Bouton modifier #}
+            {% if isOwner %}
+                <a href="{{ path('app_profile_edit') }}" class="btn-ghost"
+                    style="border-color:rgba(250,244,232,0.2); color:rgba(250,244,232,0.65); background:rgba(250,244,232,0.06); flex-shrink:0; align-self:flex-start;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Modifier
                 </a>
             {% endif %}
-        {% endfor %}
-        {% if not hasPublished %}
-            <p style="font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem; padding:1.5rem 0;">Aucune recette publiée pour l'instant.</p>
+        </div>
+    </div>
+
+    {# ── Onglets ── #}
+    <div style="display:flex; gap:0.25rem; margin-bottom:2rem; border-bottom:2px solid var(--color-cream-border); padding-bottom:0;">
+        <button onclick="showTab('recettes')" id="tab-recettes"
+            style="font-family:var(--font-crimson); font-size:1rem; font-weight:600; padding:0.625rem 1.25rem; border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:color .2s, border-color .2s; color:var(--color-ink);">
+            Recettes
+            <span style="font-size:0.8125rem; font-weight:400; margin-left:0.375rem; color:var(--color-sand);">{{ publishedRecipes|length }}</span>
+        </button>
+        {% if isOwner %}
+            <button onclick="showTab('favoris')" id="tab-favoris"
+                style="font-family:var(--font-crimson); font-size:1rem; font-weight:600; padding:0.625rem 1.25rem; border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:color .2s, border-color .2s; color:var(--color-ink-muted);">
+                Favoris
+                <span style="font-size:0.8125rem; font-weight:400; margin-left:0.375rem; color:var(--color-sand);">{{ user.favorites|length }}</span>
+            </button>
+            {% if draftRecipes|length > 0 %}
+                <button onclick="showTab('brouillons')" id="tab-brouillons"
+                    style="font-family:var(--font-crimson); font-size:1rem; font-weight:600; padding:0.625rem 1.25rem; border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:color .2s, border-color .2s; color:var(--color-ink-muted);">
+                    Brouillons
+                    <span style="font-size:0.8125rem; font-weight:400; margin-left:0.375rem; color:var(--color-sand);">{{ draftRecipes|length }}</span>
+                </button>
+            {% endif %}
         {% endif %}
     </div>
 
-    {# Brouillons (propriétaire uniquement) #}
-    {% if app.user == user %}
-        {% set hasDraft = false %}
-        {% for recipe in user.recipes %}
-            {% if not recipe.isPublished %}{% set hasDraft = true %}{% endif %}
-        {% endfor %}
-
-        {% if hasDraft %}
-            <div class="section-heading" style="margin-top:0.5rem;">
-                <h2 style="font-size:1.375rem;">Brouillons</h2>
+    {# ── Panneau Recettes ── #}
+    <div id="panel-recettes">
+        {% if publishedRecipes|length == 0 %}
+            <div style="text-align:center; padding:4rem 1rem;">
+                <div style="font-size:3rem; margin-bottom:1rem; opacity:0.35;">🍽</div>
+                <p style="font-family:var(--font-crimson); color:var(--color-sand); font-size:1.0625rem;">Aucune recette publiée pour l'instant.</p>
+                {% if isOwner %}
+                    <a href="{{ path('app_recipe_add') }}" class="btn-primary" style="margin-top:1.25rem; display:inline-flex;">Ajouter une recette</a>
+                {% endif %}
             </div>
-            <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:2.5rem;">
-                {% for recipe in user.recipes %}
-                    {% if not recipe.isPublished %}
-                        <div style="display:flex; align-items:center; gap:1rem; background:white; border-radius:1rem; padding:1rem 1.25rem; box-shadow:0 1px 4px rgba(44,24,16,0.06); border-left:3px solid var(--color-cream-border);">
-                            <div style="width:2.75rem; height:2.75rem; border-radius:0.625rem; background:var(--color-cream-dark); display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0; opacity:0.5;">🍽</div>
+        {% else %}
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(15rem, 1fr)); gap:1.25rem;">
+                {% for recipe in publishedRecipes %}
+                    <a href="{{ path('app_recipe_show', {id: recipe.id}) }}" class="recipe-card" style="text-decoration:none; display:block;">
+                        <div class="recipe-card-thumb">
+                            {% if recipe.imageName %}
+                                <img src="{{ asset('uploads/recipes/' ~ recipe.imageName) }}" alt="{{ recipe.title }}"
+                                    style="width:100%; height:100%; object-fit:cover; display:block;">
+                            {% else %}
+                                <span style="font-size:2.5rem; opacity:0.35; z-index:1;">🍽</span>
+                            {% endif %}
+                        </div>
+                        <div style="padding:1rem 1.125rem 1.25rem;">
+                            <h3 style="font-size:1rem; font-weight:600; color:var(--color-ink); margin-bottom:0.375rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ recipe.title }}</h3>
+                            <p style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand); margin:0;">
+                                {{ recipe.createdAt|date('d/m/Y') }}
+                                {% if recipe.difficulty %}
+                                    · <span class="badge badge-{{ recipe.difficulty == 'Facile' ? 'easy' : (recipe.difficulty == 'Difficile' ? 'hard' : 'medium') }}" style="font-size:0.7rem; padding:0.1rem 0.5rem;">{{ recipe.difficulty }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    {# ── Panneau Favoris ── #}
+    {% if isOwner %}
+        <div id="panel-favoris" style="display:none;">
+            {% if user.favorites is empty %}
+                <div style="text-align:center; padding:4rem 1rem;">
+                    <div style="font-size:3rem; margin-bottom:1rem; opacity:0.35;">★</div>
+                    <p style="font-family:var(--font-crimson); color:var(--color-sand); font-size:1.0625rem;">Aucun favori enregistré pour l'instant.</p>
+                </div>
+            {% else %}
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(15rem, 1fr)); gap:1.25rem;">
+                    {% for favori in user.favorites %}
+                        {% if favori.recipe %}
+                            <a href="{{ path('app_recipe_show', {id: favori.recipe.id}) }}" class="recipe-card" style="text-decoration:none; display:block;">
+                                <div class="recipe-card-thumb">
+                                    {% if favori.recipe.imageName %}
+                                        <img src="{{ asset('uploads/recipes/' ~ favori.recipe.imageName) }}" alt="{{ favori.recipe.title }}"
+                                            style="width:100%; height:100%; object-fit:cover; display:block;">
+                                    {% else %}
+                                        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
+                                            <span style="font-size:2.5rem; opacity:0.35;">🍽</span>
+                                        </div>
+                                    {% endif %}
+                                    <div style="position:absolute; top:0.625rem; right:0.625rem; z-index:2; background:rgba(201,150,58,0.9); border-radius:50%; width:1.75rem; height:1.75rem; display:flex; align-items:center; justify-content:center; font-size:0.875rem; color:white; backdrop-filter:blur(4px);">★</div>
+                                </div>
+                                <div style="padding:1rem 1.125rem 1.25rem;">
+                                    <h3 style="font-size:1rem; font-weight:600; color:var(--color-ink); margin-bottom:0.25rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ favori.recipe.title }}</h3>
+                                    <p style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand); margin:0;">par {{ favori.recipe.author.username }}</p>
+                                </div>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        {# ── Panneau Brouillons ── #}
+        {% if draftRecipes|length > 0 %}
+            <div id="panel-brouillons" style="display:none;">
+                <div style="display:flex; flex-direction:column; gap:0.625rem;">
+                    {% for recipe in draftRecipes %}
+                        <div style="display:flex; align-items:center; gap:1rem; background:white; border-radius:1rem; padding:1rem 1.25rem; box-shadow:0 1px 4px rgba(44,24,16,0.05); border-left:3px solid var(--color-cream-border);">
+                            <div style="width:2.75rem; height:2.75rem; border-radius:0.625rem; background:var(--color-parchment); display:flex; align-items:center; justify-content:center; font-size:1.125rem; flex-shrink:0; opacity:0.5;">🍽</div>
                             <div style="flex:1; min-width:0;">
-                                <span style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">{{ recipe.title }}</span>
-                                <span style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand);">
-                                    Créée le {{ recipe.createdAt|date('d/m/Y') }}
-                                </span>
+                                <div style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ recipe.title }}</div>
+                                <div style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand);">Créée le {{ recipe.createdAt|date('d/m/Y') }}</div>
                             </div>
                             <a href="{{ path('app_recipe_edit', {id: recipe.id}) }}"
-                                style="display:inline-flex; align-items:center; gap:0.375rem; font-family:var(--font-crimson); font-size:0.875rem; color:var(--color-terracotta); text-decoration:none; white-space:nowrap; padding:0.375rem 0.875rem; border:1px solid var(--color-terracotta-soft); border-radius:0.5rem; transition:background .15s;"
+                                style="display:inline-flex; align-items:center; gap:0.375rem; font-family:var(--font-crimson); font-size:0.875rem; color:var(--color-terracotta); text-decoration:none; padding:0.375rem 0.875rem; border:1px solid var(--color-terracotta-soft); border-radius:0.5rem; white-space:nowrap; transition:background .15s; flex-shrink:0;"
                                 onmouseover="this.style.background='var(--color-terracotta-soft)'"
                                 onmouseout="this.style.background='transparent'">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 Modifier
                             </a>
                         </div>
-                    {% endif %}
-                {% endfor %}
+                    {% endfor %}
+                </div>
             </div>
         {% endif %}
     {% endif %}
 
-    {# Favoris (propriétaire uniquement) #}
-    {% if app.user == user %}
-        <div class="section-heading">
-            <h2 style="font-size:1.375rem;">Mes favoris</h2>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:0.75rem;">
-            {% if user.favorites is empty %}
-                <p style="font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem; padding:1.5rem 0;">Aucun favori pour l'instant.</p>
-            {% else %}
-                {% for favori in user.favorites %}
-                    {% if favori.recipe %}
-                        <a href="{{ path('app_recipe_show', {id: favori.recipe.id}) }}"
-                            style="display:flex; align-items:center; gap:1rem; background:white; border-radius:1rem; padding:1rem 1.25rem; text-decoration:none; box-shadow:0 1px 4px rgba(44,24,16,0.06); transition:box-shadow .2s, transform .2s;"
-                            onmouseover="this.style.boxShadow='0 4px 16px rgba(44,24,16,0.1)'; this.style.transform='translateX(4px)'"
-                            onmouseout="this.style.boxShadow='0 1px 4px rgba(44,24,16,0.06)'; this.style.transform='translateX(0)'">
-                            <div style="width:2.75rem; height:2.75rem; border-radius:0.625rem; background:var(--color-gold-soft); display:flex; align-items:center; justify-content:center; font-size:1.125rem; flex-shrink:0; color:var(--color-gold);">★</div>
-                            <span style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ favori.recipe.title }}</span>
-                            <svg style="margin-left:auto; flex-shrink:0; color:var(--color-sand);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                        </a>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-        </div>
-    {% endif %}
-
 </div>
+
+<script>
+(function () {
+    const tabs = ['recettes', 'favoris', 'brouillons'];
+
+    function showTab(name) {
+        tabs.forEach(function (t) {
+            var panel = document.getElementById('panel-' + t);
+            var tab   = document.getElementById('tab-' + t);
+            if (panel) panel.style.display = (t === name) ? '' : 'none';
+            if (tab) {
+                tab.style.color       = (t === name) ? 'var(--color-ink)'       : 'var(--color-ink-muted)';
+                tab.style.borderColor = (t === name) ? 'var(--color-terracotta)' : 'transparent';
+            }
+        });
+        try { sessionStorage.setItem('profileTab', name); } catch(e) {}
+    }
+
+    // Restaure l'onglet actif au rechargement
+    var saved = sessionStorage.getItem('profileTab');
+    showTab((saved && document.getElementById('panel-' + saved)) ? saved : 'recettes');
+
+    // Exposition globale pour les boutons onclick
+    window.showTab = showTab;
+})();
+</script>
+
 {% endblock %}

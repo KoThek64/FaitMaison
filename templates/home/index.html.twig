@@ -58,30 +58,46 @@
         {% else %}
             <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(17rem, 1fr)); gap:1.5rem;">
                 {% for recipe in recipes %}
-                    <a href="{{ path('app_recipe_show', {id: recipe.id}) }}" class="recipe-card" style="text-decoration:none; display:block;">
-                        <div class="recipe-card-thumb">
-                            {% if recipe.imageName %}
-                                <img src="{{ asset('uploads/recipes/' ~ recipe.imageName) }}" alt="{{ recipe.title }}" style="width:100%; height:100%; object-fit:cover; display:block;">
-                            {% else %}
-                                <span style="font-size:3rem; opacity:0.35; position:relative; z-index:1;">🍽</span>
-                            {% endif %}
-                        </div>
-                        <div style="padding:1.25rem 1.25rem 1rem;">
-                            <h3 style="font-family:var(--font-playfair); font-size:1.0625rem; font-weight:600; color:var(--color-ink); margin-bottom:0.5rem; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
-                                {{ recipe.title }}
-                            </h3>
-                            <div style="display:flex; flex-wrap:wrap; gap:0.625rem; align-items:center; font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-ink-muted); margin-bottom:0.875rem;">
-                                <span>{{ recipe.category.name }}</span>
-                                <span style="color:var(--color-cream-border);">·</span>
-                                <span>{{ recipe.duration }} min</span>
-                                <span style="color:var(--color-cream-border);">·</span>
-                                <span>{{ recipe.servings }} pers.</span>
+                    <div class="recipe-card" style="display:flex; flex-direction:column;">
+                        <a href="{{ path('app_recipe_show', {id: recipe.id}) }}" style="text-decoration:none; display:block; flex:1;">
+                            <div class="recipe-card-thumb">
+                                {% if recipe.imageName %}
+                                    <img src="{{ asset('uploads/recipes/' ~ recipe.imageName) }}" alt="{{ recipe.title }}" style="width:100%; height:100%; object-fit:cover; display:block;">
+                                {% else %}
+                                    <span style="font-size:3rem; opacity:0.35; position:relative; z-index:1;">🍽</span>
+                                {% endif %}
                             </div>
-                            <span class="badge {{ recipe.difficulty == 'facile' ? 'badge-easy' : (recipe.difficulty == 'moyen' ? 'badge-medium' : 'badge-hard') }}">
-                                {{ recipe.difficulty }}
-                            </span>
-                        </div>
-                    </a>
+                            <div style="padding:1.25rem 1.25rem 0.875rem;">
+                                <h3 style="font-family:var(--font-playfair); font-size:1.0625rem; font-weight:600; color:var(--color-ink); margin-bottom:0.5rem; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                                    {{ recipe.title }}
+                                </h3>
+                                <div style="display:flex; flex-wrap:wrap; gap:0.625rem; align-items:center; font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-ink-muted); margin-bottom:0.875rem;">
+                                    <span>{{ recipe.category.name }}</span>
+                                    <span style="color:var(--color-cream-border);">·</span>
+                                    <span>{{ recipe.duration }} min</span>
+                                    <span style="color:var(--color-cream-border);">·</span>
+                                    <span>{{ recipe.servings }} pers.</span>
+                                </div>
+                                <span class="badge {{ recipe.difficulty == 'facile' ? 'badge-easy' : (recipe.difficulty == 'moyen' ? 'badge-medium' : 'badge-hard') }}">
+                                    {{ recipe.difficulty }}
+                                </span>
+                            </div>
+                        </a>
+                        <a href="{{ path('app_profile_show', {id: recipe.author.id}) }}"
+                            style="display:flex; align-items:center; gap:0.625rem; padding:0.75rem 1.25rem; border-top:1px solid var(--color-cream-border); text-decoration:none; transition:background .15s; border-radius:0 0 1.25rem 1.25rem;"
+                            onmouseover="this.style.background='var(--color-cream)'"
+                            onmouseout="this.style.background='transparent'">
+                            {% if recipe.author.avatarName %}
+                                <img src="{{ asset('uploads/recipes/' ~ recipe.author.avatarName) }}" alt="{{ recipe.author.username }}"
+                                    style="width:1.5rem; height:1.5rem; border-radius:50%; object-fit:cover; flex-shrink:0;">
+                            {% else %}
+                                <div style="width:1.5rem; height:1.5rem; border-radius:50%; background:var(--color-terracotta); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:0.625rem; font-weight:700; color:var(--color-cream); flex-shrink:0;">
+                                    {{ recipe.author.username|first|upper }}
+                                </div>
+                            {% endif %}
+                            <span style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ recipe.author.username }}</span>
+                        </a>
+                    </div>
                 {% endfor %}
             </div>
 
