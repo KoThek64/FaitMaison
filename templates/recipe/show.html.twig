@@ -194,7 +194,7 @@
                                     style="font-family:var(--font-playfair); font-size:0.9375rem; font-weight:600; color:var(--color-ink); text-decoration:none; transition:color .15s;"
                                     onmouseover="this.style.color='var(--color-terracotta)'"
                                     onmouseout="this.style.color='var(--color-ink)'">{{ comment.author.username }}</a>
-                                <span style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand);">{{ comment.createdAt|date('d/m/Y à H:i') }}</span>
+                                <span style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand);">{{ comment.createdAt|date('d/m/Y à H:i', 'Europe/Paris') }}</span>
                             </div>
                             <p style="font-family:var(--font-crimson); font-size:1rem; color:var(--color-ink-muted); line-height:1.6; margin:0;">{{ comment.content }}</p>
                         </div>
