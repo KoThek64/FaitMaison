@@ -39,12 +39,4 @@ final class FollowController extends AbstractController
         return $this->redirectToRoute('app_profile_show', ['id' => $user->getId()]);
     }
 
-//    #[Route('/follow', name: 'app_follow')]
-//    public function index(): Response
-//    {
-//        return $this->render('follow/index.html.twig', [
-//            'controller_name' => 'FollowController',
-//        ]);
-//    }
-
 }

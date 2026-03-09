@@ -59,6 +59,16 @@
         {% endif %}
 
         {% if app.user %}
+            {# Bouton like #}
+            <form method="post" action="{{ path('app_like_toggle', {id: recipe.id}) }}">
+                <button type="submit"
+                    style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.625rem 1.25rem; border-radius:0.625rem; font-family:var(--font-crimson); font-size:0.9375rem; font-weight:600; cursor:pointer; transition:all .2s; border:1px solid {{ isLiked ? '#DFB0A8' : 'var(--color-cream-border)' }}; background:{{ isLiked ? '#FAF0EE' : 'transparent' }}; color:{{ isLiked ? '#9B3220' : 'var(--color-ink-muted)' }};">
+                    {{ isLiked ? '♥' : '♡' }}
+                    {{ recipe.likes|length }}
+                </button>
+            </form>
+
+            {# Bouton favori #}
             <form method="post" action="{{ path('app_favorite_toggle', {id: recipe.id}) }}">
                 <button type="submit" class="{{ isFavorite ? 'btn-primary' : 'btn-ghost' }}">
                     {{ isFavorite ? '★' : '☆' }} {{ isFavorite ? 'Favori' : 'Ajouter aux favoris' }}
@@ -122,6 +132,90 @@
             </form>
         </div>
     {% endif %}
+
+
+    {# ── Commentaires ── #}
+    <div style="margin-top:2.5rem;">
+        <div class="section-heading">
+            <h2 style="font-size:1.25rem;">Commentaires <span style="font-family:var(--font-crimson); font-size:1rem; font-weight:400; color:var(--color-sand);">{{ recipe.comments|length }}</span></h2>
+        </div>
+
+        {# Formulaire #}
+        {% if app.user %}
+            {% if app.user != recipe.author %}
+                <form method="post" action="{{ path('app_comment_add', {id: recipe.id}) }}" style="margin-bottom:2rem;">
+                    <div style="display:flex; gap:0.75rem; align-items:flex-start;">
+                        {% if app.user.avatarName %}
+                            <img src="{{ asset('uploads/recipes/' ~ app.user.avatarName) }}" alt="{{ app.user.username }}"
+                                style="width:2.5rem; height:2.5rem; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-cream-border);">
+                        {% else %}
+                            <div style="width:2.5rem; height:2.5rem; border-radius:50%; background:var(--color-terracotta); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:1rem; font-weight:700; color:var(--color-cream); flex-shrink:0;">
+                                {{ app.user.username|first|upper }}
+                            </div>
+                        {% endif %}
+                        <div style="flex:1;">
+                            <textarea name="content" rows="3" placeholder="Partagez votre avis sur cette recette…"
+                                style="resize:vertical; min-height:5rem;"></textarea>
+                            <div style="display:flex; justify-content:flex-end; margin-top:0.5rem;">
+                                <button type="submit" class="btn-primary" style="padding:0.5rem 1.25rem; font-size:0.9375rem;">
+                                    Publier
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
+        {% else %}
+            <p style="font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem; margin-bottom:1.5rem;">
+                <a href="{{ path('app_login') }}" style="color:var(--color-terracotta);">Connectez-vous</a> pour laisser un commentaire.
+            </p>
+        {% endif %}
+
+        {# Liste des commentaires #}
+        {% if recipe.comments is empty %}
+            <p style="font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem; padding:1rem 0;">Aucun commentaire pour l'instant. Soyez le premier !</p>
+        {% else %}
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+                {% for comment in recipe.comments %}
+                    <div style="display:flex; gap:0.875rem; align-items:flex-start; background:white; border-radius:1rem; padding:1.125rem 1.25rem; box-shadow:0 1px 4px rgba(44,24,16,0.05);">
+                        {# Avatar auteur #}
+                        {% if comment.author.avatarName %}
+                            <img src="{{ asset('uploads/recipes/' ~ comment.author.avatarName) }}" alt="{{ comment.author.username }}"
+                                style="width:2.25rem; height:2.25rem; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-cream-border);">
+                        {% else %}
+                            <div style="width:2.25rem; height:2.25rem; border-radius:50%; background:var(--color-terracotta); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:0.875rem; font-weight:700; color:var(--color-cream); flex-shrink:0;">
+                                {{ comment.author.username|first|upper }}
+                            </div>
+                        {% endif %}
+
+                        <div style="flex:1; min-width:0;">
+                            <div style="display:flex; align-items:baseline; gap:0.625rem; margin-bottom:0.375rem; flex-wrap:wrap;">
+                                <a href="{{ path('app_profile_show', {id: comment.author.id}) }}"
+                                    style="font-family:var(--font-playfair); font-size:0.9375rem; font-weight:600; color:var(--color-ink); text-decoration:none; transition:color .15s;"
+                                    onmouseover="this.style.color='var(--color-terracotta)'"
+                                    onmouseout="this.style.color='var(--color-ink)'">{{ comment.author.username }}</a>
+                                <span style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand);">{{ comment.createdAt|date('d/m/Y à H:i') }}</span>
+                            </div>
+                            <p style="font-family:var(--font-crimson); font-size:1rem; color:var(--color-ink-muted); line-height:1.6; margin:0;">{{ comment.content }}</p>
+                        </div>
+
+                        {# Bouton supprimer (auteur du commentaire uniquement) #}
+                        {% if app.user == comment.author %}
+                            <form method="post" action="{{ path('app_comment_delete', {id: comment.id}) }}" style="flex-shrink:0;"
+                                onsubmit="return confirm('Supprimer ce commentaire ?')">
+                                <button type="submit" title="Supprimer"
+                                    style="background:transparent; border:none; cursor:pointer; padding:0.25rem; color:var(--color-sand); transition:color .15s; line-height:1;"
+                                    onmouseover="this.style.color='#9B3220'"
+                                    onmouseout="this.style.color='var(--color-sand)'">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 
 </div>
 {% endblock %}

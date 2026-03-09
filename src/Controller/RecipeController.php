@@ -6,6 +6,7 @@ use App\Entity\Recipe;
 use App\Form\RecipeFilterType;
 use App\Form\RecipeType;
 use App\Repository\FavoriteRepository;
+use App\Repository\LikeRepository;
 use App\Repository\RatingRepository;
 use App\Repository\RecipeRepository;
 use App\Service\ImageUploader;
@@ -64,10 +65,11 @@ final class RecipeController extends AbstractController
     }
 
     #[Route('/recette/{id}', name: 'app_recipe_show', requirements: ['id' => '\d+'])]
-    public function show(Recipe $recipe, FavoriteRepository $favoriteRepository, RatingRepository $ratingRepository): Response
+    public function show(Recipe $recipe, FavoriteRepository $favoriteRepository, RatingRepository $ratingRepository, LikeRepository $likeRepository): Response
     {
         $isFavorite = false;
         $userRating = null;
+        $isLiked = false;
 
         if ($this->getUser()) {
             $isFavorite = (bool) $favoriteRepository->findOneBy([
@@ -75,6 +77,10 @@ final class RecipeController extends AbstractController
                 'recipe' => $recipe,
             ]);
             $userRating = $ratingRepository->findOneBy([
+                'user' => $this->getUser(),
+                'recipe' => $recipe,
+            ]);
+            $isLiked = (bool) $likeRepository->findOneBy([
                 'user' => $this->getUser(),
                 'recipe' => $recipe,
             ]);
@@ -87,6 +93,7 @@ final class RecipeController extends AbstractController
             'isFavorite' => $isFavorite,
             'userRating' => $userRating,
             'average' => $averageRating,
+            'isLiked' => $isLiked,
         ]);
     }
 
