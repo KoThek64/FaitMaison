@@ -1,0 +1,9 @@
+[build]
+buildCommand = "php bin/console importmap:install && php bin/console tailwind:build --env=prod && php bin/console asset-map:compile --env=prod"
+
+[deploy]
+startCommand = "php bin/console cache:warmup && php bin/console doctrine:migrations:migrate --no-interaction && /start-container.sh"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
