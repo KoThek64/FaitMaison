@@ -20,7 +20,8 @@
 ###< symfony/asset-mapper ###
 
 # Uploads
-/public/uploads/
+/public/uploads/*
+!/public/uploads/recipes/.gitkeep
 
 # IDE
 .idea/
