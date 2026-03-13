@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -56,9 +57,12 @@ final class RegistrationController extends AbstractController
                     'signedUrl' => $generatedSignature->getSignedUrl(),
                 ]);
 
-            $mailer->send($email);
-
-            $this->addFlash('success', 'Compte créé avec succès ! Veuillez vérifier votre email pour vous connecter');
+            try {
+                $mailer->send($email);
+                $this->addFlash('success', 'Compte créé avec succès ! Veuillez vérifier votre email pour vous connecter');
+            } catch (TransportExceptionInterface) {
+                $this->addFlash('error', "Votre compte a été créé mais l'email de confirmation n'a pas pu être envoyé. Contactez un administrateur.");
+            }
 
             return $this->redirectToRoute('app_login');
         }
