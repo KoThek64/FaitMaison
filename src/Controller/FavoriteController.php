@@ -8,13 +8,14 @@ use App\Entity\User;
 use App\Repository\FavoriteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class FavoriteController extends AbstractController
 {
     #[Route('/recette/{id}/favori', name: 'app_favorite_toggle', methods: ['POST'])]
-    public function toggle(Recipe $recipe, EntityManagerInterface $em, FavoriteRepository $favoriteRepository){
+    public function toggle(Request $request, Recipe $recipe, EntityManagerInterface $em, FavoriteRepository $favoriteRepository){
         $user = $this->getUser();
         if(!$user instanceof User){
             throw $this->createAccessDeniedException();
@@ -23,7 +24,6 @@ final class FavoriteController extends AbstractController
         $favori = $favoriteRepository->findOneBy(['user' => $user, 'recipe' => $recipe]);
         if ($favori){
             $em->remove($favori);
-            $em->flush();
         } else {
             $nouveauFavori = new Favorite();
             $nouveauFavori->setUser($user);
@@ -31,9 +31,15 @@ final class FavoriteController extends AbstractController
             $nouveauFavori->setCreatedAt(new \DateTimeImmutable());
 
             $em->persist($nouveauFavori);
-            $em->flush();
         }
+        $em->flush();
 
-        return $this->redirectToRoute('app_recipe_show', ['id' => $recipe->getId()]);
+        if ($request->isXmlHttpRequest()){
+            return $this->json([
+                "favorites" => !isset($favori)
+            ]);
+        } else {
+            return $this->redirectToRoute('app_recipe_show', ['id' => $recipe->getId()]);
+        }
     }
 }

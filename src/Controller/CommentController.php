@@ -27,12 +27,24 @@ final class CommentController extends AbstractController
 
         $em->persist($comment);
         $em->flush();
+
+        if ($request->isXmlHttpRequest()) {
+            return $this->json([
+                'id'               => $comment->getId(),
+                'content'          => $comment->getContent(),
+                'authorId'         => $comment->getAuthor()->getId(),
+                'authorUsername'   => $comment->getAuthor()->getUsername(),
+                'authorAvatarName' => $comment->getAuthor()->getAvatarName(),
+                'createdAt'        => $comment->getCreatedAt()->setTimezone(new \DateTimeZone('Europe/Paris'))->format('d/m/Y à H:i'),
+            ]);
+        }
+
         return $this->redirectToRoute('app_recipe_show' , ['id' => $recipe->getId()]);
     }
 
     #[IsGranted('ROLE_USER')]
     #[Route('/commentaire/{id}/supprimer', name: 'app_comment_delete', methods: ['POST'])]
-    public function delete(Comment $comment, EntityManagerInterface $em)
+    public function delete(Request $request, Comment $comment, EntityManagerInterface $em)
     {
         $currentUser = $this->getUser();
         if ($comment->getAuthor() !== $currentUser){
@@ -42,6 +54,11 @@ final class CommentController extends AbstractController
         $recipeId = $comment->getRecipe()->getId();
         $em->remove($comment);
         $em->flush();
+
+        if ($request->isXmlHttpRequest()) {
+            return $this->json(['success' => true]);
+        }
+
         return $this->redirectToRoute('app_recipe_show', ['id' => $recipeId]);
     }
 }

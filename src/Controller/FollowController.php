@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\Follow;
@@ -16,7 +17,7 @@ final class FollowController extends AbstractController
 
     #[IsGranted('ROLE_USER')]
     #[Route('/profil/{id}/suivre', name: 'app_follow_toggle', methods: ['POST'])]
-    public function toggle(User $user, FollowRepository $followRepository, EntityManagerInterface $em): Response
+    public function toggle(Request $request, User $user, FollowRepository $followRepository, EntityManagerInterface $em): Response
     {
         $currentUser = $this->getUser();
         if (!$currentUser instanceof User){
@@ -36,7 +37,15 @@ final class FollowController extends AbstractController
         }
 
         $em->flush();
-        return $this->redirectToRoute('app_profile_show', ['id' => $user->getId()]);
+
+        if($request->isXmlHttpRequest()){
+            return $this->json([
+                "following" => !isset($follow),
+                "count" => $followRepository->count(['followed' => $user])
+            ]);
+        } else {
+            return $this->redirectToRoute('app_profile_show', ['id' => $user->getId()]);
+        }
     }
 
 }

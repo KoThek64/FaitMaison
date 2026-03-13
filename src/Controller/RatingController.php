@@ -42,6 +42,13 @@ final class RatingController extends AbstractController
         }
         $em->flush();
 
-        return $this->redirectToRoute('app_recipe_show', ['id' => $recipe->getId()]);
+        if ($request->isXmlHttpRequest()){
+            return $this->json([
+                "score" => $score,
+                "average" => $ratingRepository->findAverageForRecipe($recipe)
+            ]);
+        } else {
+            return $this->redirectToRoute('app_recipe_show', ['id' => $recipe->getId()]);
+        }
     }
 }
