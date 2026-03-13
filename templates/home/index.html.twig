@@ -81,6 +81,13 @@
                                 <span class="badge {{ recipe.difficulty == 'facile' ? 'badge-easy' : (recipe.difficulty == 'moyen' ? 'badge-medium' : 'badge-hard') }}">
                                     {{ recipe.difficulty }}
                                 </span>
+                                {% if recipe.tags|length > 0 %}
+                                    <div style="display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.625rem;">
+                                        {% for tag in recipe.tags|slice(0, 3) %}
+                                            <span style="font-family:var(--font-crimson); font-size:0.75rem; padding:0.15rem 0.625rem; border-radius:999px; background:var(--color-cream); border:1px solid var(--color-cream-border); color:var(--color-ink-muted);">{{ tag.name }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                             </div>
                         </a>
                         <a href="{{ path('app_profile_show', {id: recipe.author.id}) }}"

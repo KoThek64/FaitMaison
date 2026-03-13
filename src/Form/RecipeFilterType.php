@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Category;
+use App\Entity\Tag;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -43,6 +44,12 @@ class RecipeFilterType extends AbstractType
                 'required' => false,
                 'label' => 'Nombre de portions',
                 'attr' => ['min' => 1]
+            ])
+            ->add('tags', EntityType::class, [
+                'class' => Tag::class,
+                'choice_label' => 'name',
+                'required' => false,
+                'placeholder' => 'Tous les tags',
             ])
         ;
     }

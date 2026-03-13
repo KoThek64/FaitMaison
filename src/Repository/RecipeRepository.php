@@ -82,6 +82,11 @@ class RecipeRepository extends ServiceEntityRepository
             $qb->andWhere('r.servings = :servings')
                 ->setParameter('servings', $filters['servings']);
         }
+        if (!empty($filters['tags'])) {
+            $qb->join('r.tags', 't')
+                ->andWhere('t = :tag')
+                ->setParameter('tag', $filters['tags']);
+        }
 
         return $qb->getQuery();
     }

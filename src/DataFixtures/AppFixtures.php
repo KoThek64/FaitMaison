@@ -37,7 +37,7 @@ class AppFixtures extends Fixture
         }
 
         // Tags
-        $tagNames = ['Végétarien', 'Vegan', 'Sans gluten', 'Rapide', 'Économique', 'Festif', 'Healthy', 'Épicé', 'Fait maison', 'Traditionnel'];
+        $tagNames = ['Végétarien', 'Vegan', 'Sans gluten', 'Rapide', 'Économique', 'Festif', 'Healthy', 'Épicé'];
         $tags = [];
         foreach ($tagNames as $name) {
             $tag = new Tag();

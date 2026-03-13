@@ -7,164 +7,199 @@
 {% set isOwner          = app.user == user %}
 {% set isFollowing      = app.user and not isOwner and user.followers|filter(f => f.follower == app.user)|length > 0 %}
 
-<div style="max-width:56rem; margin:0 auto; padding:2.5rem 1.5rem 5rem;">
+<style>
+.profile-avatar       { width:4.75rem; height:4.75rem; font-size:1.75rem; }
+.profile-stats-row    { gap:1rem; }
+.profile-stat-number  { font-size:1.25rem; }
+.profile-stat-label   { font-size:0.6875rem; }
+.profile-stat-cell    { padding:0 0.25rem; }
+.profile-username     { font-size:1.25rem; }
 
-    {# ── En-tête profil ── #}
-    <div style="background:linear-gradient(135deg, var(--color-espresso) 0%, var(--color-espresso-mid) 60%, #3D2015 100%); border-radius:1.75rem; padding:2.25rem 2rem; margin-bottom:2.5rem; position:relative; overflow:hidden;">
+@media (min-width: 768px) {
+    .profile-avatar       { width:7rem !important; height:7rem !important; font-size:2.25rem !important; }
+    .profile-stats-row    { gap:2rem !important; }
+    .profile-stat-number  { font-size:1.625rem !important; }
+    .profile-stat-label   { font-size:0.8125rem !important; letter-spacing:0.05em !important; }
+    .profile-stat-cell    { padding:0 0.75rem !important; }
+    .profile-username     { font-size:1.625rem !important; }
+}
+</style>
+
+<div style="max-width:48rem; margin:0 auto; padding:2rem 1rem 5rem;">
+
+    {# ── En-tête profil (style Instagram) ── #}
+    <div style="background:linear-gradient(150deg, var(--color-espresso) 0%, #2C1810 55%, #3D2015 100%); border-radius:1.5rem; padding:2rem 1.75rem 1.75rem; margin-bottom:0; position:relative; overflow:hidden;">
 
         {# Texture de fond #}
-        <div style="position:absolute; inset:0; background-image:radial-gradient(circle, rgba(250,244,232,0.025) 1px, transparent 1px); background-size:18px 18px; pointer-events:none;"></div>
-        {# Accent décoratif #}
-        <div style="position:absolute; top:-4rem; right:-4rem; width:14rem; height:14rem; border-radius:50%; background:radial-gradient(circle, rgba(196,98,45,0.18) 0%, transparent 70%); pointer-events:none;"></div>
+        <div style="position:absolute; inset:0; background-image:radial-gradient(circle, rgba(250,244,232,0.02) 1px, transparent 1px); background-size:20px 20px; pointer-events:none;"></div>
+        <div style="position:absolute; top:-5rem; right:-3rem; width:16rem; height:16rem; border-radius:50%; background:radial-gradient(circle, rgba(196,98,45,0.12) 0%, transparent 65%); pointer-events:none;"></div>
 
-        <div style="position:relative; z-index:1; display:flex; align-items:flex-start; gap:1.75rem; flex-wrap:wrap;">
+        <div style="position:relative; z-index:1;">
 
-            {# Avatar #}
-            {% if user.avatarName %}
-                <img src="{{ asset('uploads/recipes/' ~ user.avatarName) }}" alt="{{ user.username }}"
-                    style="width:5.5rem; height:5.5rem; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid rgba(201,150,58,0.5); box-shadow:0 0 0 4px rgba(201,150,58,0.12);">
-            {% else %}
-                <div style="width:5.5rem; height:5.5rem; border-radius:50%; background:linear-gradient(135deg, var(--color-terracotta) 0%, var(--color-terracotta-dark) 100%); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:2rem; font-weight:700; color:var(--color-cream); flex-shrink:0; border:2px solid rgba(201,150,58,0.4); box-shadow:0 0 0 4px rgba(201,150,58,0.1);">
-                    {{ user.username|first|upper }}
-                </div>
-            {% endif %}
+            {# Ligne 1 : Avatar + Stats #}
+            <div class="profile-stats-row" style="display:flex; align-items:center; margin-bottom:1.25rem;">
 
-            {# Infos #}
-            <div style="flex:1; min-width:0;">
-                <h1 style="font-size:1.75rem; color:var(--color-cream); margin-bottom:0.25rem; line-height:1.15;">{{ user.username }}</h1>
-                <p style="font-family:var(--font-crimson); font-size:0.8125rem; color:rgba(250,244,232,0.4); margin-bottom:0.875rem; letter-spacing:0.04em;">
-                    Membre depuis {{ user.createdAt|date('F Y') }}
-                </p>
-                {% if user.bio %}
-                    <p style="font-family:var(--font-crimson); font-size:1.0625rem; color:rgba(250,244,232,0.75); line-height:1.6; max-width:34rem; margin-bottom:1.25rem;">{{ user.bio }}</p>
+                {# Avatar #}
+                {% if user.avatarName %}
+                    <img src="{{ asset('uploads/recipes/' ~ user.avatarName) }}" alt="{{ user.username }}"
+                        class="profile-avatar"
+                        style="border-radius:50%; object-fit:cover; flex-shrink:0;
+                               box-shadow:0 0 0 3px var(--color-espresso), 0 0 0 5px rgba(201,150,58,0.5), 0 0 0 8px rgba(201,150,58,0.12);">
                 {% else %}
-                    <div style="margin-bottom:1.25rem;"></div>
+                    <div class="profile-avatar"
+                        style="border-radius:50%; background:linear-gradient(135deg, var(--color-terracotta) 0%, #9B3E18 100%); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-weight:700; color:var(--color-cream); flex-shrink:0;
+                               box-shadow:0 0 0 3px var(--color-espresso), 0 0 0 5px rgba(201,150,58,0.4), 0 0 0 8px rgba(201,150,58,0.1);">
+                        {{ user.username|first|upper }}
+                    </div>
                 {% endif %}
 
                 {# Stats #}
-                <div style="display:flex; gap:2rem; flex-wrap:wrap;">
-                    <div style="text-align:center;">
-                        <div style="font-family:var(--font-playfair); font-size:1.5rem; font-weight:700; color:var(--color-cream); line-height:1;">{{ publishedRecipes|length }}</div>
-                        <div style="font-family:var(--font-crimson); font-size:0.75rem; color:rgba(250,244,232,0.45); letter-spacing:0.06em; text-transform:uppercase; margin-top:0.2rem;">Recette{{ publishedRecipes|length > 1 ? 's' : '' }}</div>
+                <div style="display:flex; flex:1; min-width:0; overflow:hidden;">
+                    <div class="profile-stat-cell" style="flex:1; text-align:center;">
+                        <div class="profile-stat-number" style="font-family:var(--font-playfair); font-weight:700; color:var(--color-cream); line-height:1;">{{ publishedRecipes|length }}</div>
+                        <div class="profile-stat-label" style="font-family:var(--font-crimson); color:rgba(250,244,232,0.45); letter-spacing:0.03em; text-transform:uppercase; margin-top:0.2rem; white-space:nowrap;">Recettes</div>
+                    </div>
+                    <div style="width:1px; background:rgba(250,244,232,0.08); align-self:stretch;"></div>
+                    <div class="profile-stat-cell" style="flex:1; text-align:center;">
+                        <div class="profile-stat-number" style="font-family:var(--font-playfair); font-weight:700; color:var(--color-cream); line-height:1;">{{ user.followers|length }}</div>
+                        <div class="profile-stat-label" style="font-family:var(--font-crimson); color:rgba(250,244,232,0.45); letter-spacing:0.03em; text-transform:uppercase; margin-top:0.2rem; white-space:nowrap;">Abonnés</div>
+                    </div>
+                    <div style="width:1px; background:rgba(250,244,232,0.08); align-self:stretch;"></div>
+                    <div class="profile-stat-cell" style="flex:1; text-align:center;">
+                        <div class="profile-stat-number" style="font-family:var(--font-playfair); font-weight:700; color:var(--color-cream); line-height:1;">{{ user.following|length }}</div>
+                        <div class="profile-stat-label" style="font-family:var(--font-crimson); color:rgba(250,244,232,0.45); letter-spacing:0.03em; text-transform:uppercase; margin-top:0.2rem; white-space:nowrap;">Suivis</div>
                     </div>
                     {% if isOwner %}
-                        <div style="width:1px; background:rgba(250,244,232,0.1); align-self:stretch;"></div>
-                        <div style="text-align:center;">
-                            <div style="font-family:var(--font-playfair); font-size:1.5rem; font-weight:700; color:var(--color-cream); line-height:1;">{{ user.favorites|length }}</div>
-                            <div style="font-family:var(--font-crimson); font-size:0.75rem; color:rgba(250,244,232,0.45); letter-spacing:0.06em; text-transform:uppercase; margin-top:0.2rem;">Favori{{ user.favorites|length > 1 ? 's' : '' }}</div>
+                        <div style="width:1px; background:rgba(250,244,232,0.08); align-self:stretch;"></div>
+                        <div class="profile-stat-cell" style="flex:1; text-align:center;">
+                            <div class="profile-stat-number" style="font-family:var(--font-playfair); font-weight:700; color:var(--color-cream); line-height:1;">{{ user.favorites|length }}</div>
+                            <div class="profile-stat-label" style="font-family:var(--font-crimson); color:rgba(250,244,232,0.45); letter-spacing:0.03em; text-transform:uppercase; margin-top:0.2rem; white-space:nowrap;">Favoris</div>
+                        </div>
+                    {% else %}
+                        <div style="width:1px; background:rgba(250,244,232,0.08); align-self:stretch;"></div>
+                        <div class="profile-stat-cell" style="flex:1; text-align:center;">
+                            {% if averageRating > 0 %}
+                                <div class="profile-stat-number" style="font-family:var(--font-playfair); font-weight:700; color:var(--color-gold); line-height:1;">{{ averageRating }}</div>
+                            {% else %}
+                                <div class="profile-stat-number" style="font-family:var(--font-playfair); font-weight:700; color:rgba(250,244,232,0.2); line-height:1;">–</div>
+                            {% endif %}
+                            <div class="profile-stat-label" style="font-family:var(--font-crimson); color:rgba(250,244,232,0.45); letter-spacing:0.03em; text-transform:uppercase; margin-top:0.2rem; white-space:nowrap;">Note</div>
                         </div>
                     {% endif %}
-                    <div style="width:1px; background:rgba(250,244,232,0.1); align-self:stretch;"></div>
-                    <div style="text-align:center;">
-                        <div style="font-family:var(--font-playfair); font-size:1.5rem; font-weight:700; color:var(--color-cream); line-height:1;">{{ user.followers|length }}</div>
-                        <div style="font-family:var(--font-crimson); font-size:0.75rem; color:rgba(250,244,232,0.45); letter-spacing:0.06em; text-transform:uppercase; margin-top:0.2rem;">Abonné{{ user.followers|length > 1 ? 's' : '' }}</div>
-                    </div>
-                    <div style="width:1px; background:rgba(250,244,232,0.1); align-self:stretch;"></div>
-                    <div style="text-align:center;">
-                        <div style="font-family:var(--font-playfair); font-size:1.5rem; font-weight:700; color:var(--color-cream); line-height:1;">{{ user.following|length }}</div>
-                        <div style="font-family:var(--font-crimson); font-size:0.75rem; color:rgba(250,244,232,0.45); letter-spacing:0.06em; text-transform:uppercase; margin-top:0.2rem;">Abonnement{{ user.following|length > 1 ? 's' : '' }}</div>
-                    </div>
-                    <div style="width:1px; background:rgba(250,244,232,0.1); align-self:stretch;"></div>
-                    <div style="text-align:center;">
-                        {% if averageRating > 0 %}
-                            <div style="font-family:var(--font-playfair); font-size:1.5rem; font-weight:700; color:var(--color-gold); line-height:1;">{{ averageRating }}</div>
-                        {% else %}
-                            <div style="font-family:var(--font-playfair); font-size:1.5rem; font-weight:700; color:rgba(250,244,232,0.25); line-height:1;">–</div>
-                        {% endif %}
-                        <div style="font-family:var(--font-crimson); font-size:0.75rem; color:rgba(250,244,232,0.45); letter-spacing:0.06em; text-transform:uppercase; margin-top:0.2rem;">Note moy.</div>
-                    </div>
                 </div>
             </div>
 
-            {# Boutons actions #}
-            <div style="display:flex; flex-direction:column; gap:0.5rem; flex-shrink:0; align-self:flex-start;">
-                {% if isOwner %}
-                    <a href="{{ path('app_profile_edit') }}" class="btn-ghost"
-                        style="border-color:rgba(250,244,232,0.2); color:rgba(250,244,232,0.65); background:rgba(250,244,232,0.06);">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        Modifier
-                    </a>
-                {% elseif app.user %}
-                    <form method="post" action="{{ path('app_follow_toggle', {id: user.id}) }}">
-                        <button type="submit"
-                            style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.625rem 1.25rem; border-radius:0.625rem; font-family:var(--font-crimson); font-size:0.9375rem; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap;
-                            {% if isFollowing %}
-                                background:rgba(250,244,232,0.1); border:1px solid rgba(250,244,232,0.25); color:rgba(250,244,232,0.8);
-                            {% else %}
-                                background:var(--color-terracotta); border:1px solid var(--color-terracotta); color:var(--color-cream);
-                            {% endif %}">
-                            {% if isFollowing %}
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                Abonné
-                            {% else %}
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                Suivre
-                            {% endif %}
-                        </button>
-                    </form>
+            {# Ligne 2 : Nom + bio #}
+            <div style="margin-bottom:1.25rem;">
+                <h1 class="profile-username" style="font-family:var(--font-playfair); font-weight:700; color:var(--color-cream); margin-bottom:0.2rem; line-height:1.2;">{{ user.username }}</h1>
+                <p style="font-family:var(--font-crimson); font-size:0.8rem; color:rgba(250,244,232,0.35); margin-bottom:{% if user.bio %}0.625rem{% else %}0{% endif %}; letter-spacing:0.04em;">
+                    Membre depuis {{ user.createdAt|date('F Y') }}
+                </p>
+                {% if user.bio %}
+                    <p style="font-family:var(--font-crimson); font-size:1rem; color:rgba(250,244,232,0.72); line-height:1.55; max-width:30rem;">{{ user.bio }}</p>
                 {% endif %}
             </div>
+
+            {# Ligne 3 : Boutons #}
+            {% if isOwner %}
+                <a href="{{ path('app_profile_edit') }}"
+                    style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 1.375rem; border-radius:0.625rem; font-family:var(--font-crimson); font-size:0.9375rem; font-weight:600; background:rgba(250,244,232,0.08); border:1px solid rgba(250,244,232,0.18); color:rgba(250,244,232,0.75); text-decoration:none; transition:background .2s;"
+                    onmouseover="this.style.background='rgba(250,244,232,0.14)'"
+                    onmouseout="this.style.background='rgba(250,244,232,0.08)'">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Modifier le profil
+                </a>
+            {% elseif app.user %}
+                <form method="post" action="{{ path('app_follow_toggle', {id: user.id}) }}" style="display:inline;">
+                    <button type="submit"
+                        style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 1.375rem; border-radius:0.625rem; font-family:var(--font-crimson); font-size:0.9375rem; font-weight:600; cursor:pointer; transition:all .2s;
+                        {% if isFollowing %}
+                            background:rgba(250,244,232,0.08); border:1px solid rgba(250,244,232,0.2); color:rgba(250,244,232,0.75);
+                        {% else %}
+                            background:var(--color-terracotta); border:1px solid var(--color-terracotta); color:var(--color-cream);
+                        {% endif %}">
+                        {% if isFollowing %}
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Abonné
+                        {% else %}
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Suivre
+                        {% endif %}
+                    </button>
+                </form>
+            {% endif %}
         </div>
     </div>
 
-    {# ── Onglets ── #}
-    <div style="display:flex; gap:0.25rem; margin-bottom:2rem; border-bottom:2px solid var(--color-cream-border); padding-bottom:0;">
+    {# ── Onglets (collés à la carte) ── #}
+    <div style="display:flex; border-bottom:1px solid var(--color-cream-border); margin-bottom:0.125rem;">
         <button onclick="showTab('recettes')" id="tab-recettes"
-            style="font-family:var(--font-crimson); font-size:1rem; font-weight:600; padding:0.625rem 1.25rem; border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:color .2s, border-color .2s; color:var(--color-ink);">
-            Recettes
-            <span style="font-size:0.8125rem; font-weight:400; margin-left:0.375rem; color:var(--color-sand);">{{ publishedRecipes|length }}</span>
+            style="flex:1; display:flex; flex-direction:column; align-items:center; gap:0.3rem; padding:0.875rem 0.5rem; border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color .2s, border-color .2s; color:var(--color-ink);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            <span style="font-family:var(--font-crimson); font-size:0.75rem; letter-spacing:0.04em; text-transform:uppercase; font-weight:600;">{{ publishedRecipes|length }}</span>
         </button>
         {% if isOwner %}
             <button onclick="showTab('favoris')" id="tab-favoris"
-                style="font-family:var(--font-crimson); font-size:1rem; font-weight:600; padding:0.625rem 1.25rem; border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:color .2s, border-color .2s; color:var(--color-ink-muted);">
-                Favoris
-                <span style="font-size:0.8125rem; font-weight:400; margin-left:0.375rem; color:var(--color-sand);">{{ user.favorites|length }}</span>
+                style="flex:1; display:flex; flex-direction:column; align-items:center; gap:0.3rem; padding:0.875rem 0.5rem; border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color .2s, border-color .2s; color:var(--color-ink-muted);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span style="font-family:var(--font-crimson); font-size:0.75rem; letter-spacing:0.04em; text-transform:uppercase; font-weight:600;">{{ user.favorites|length }}</span>
             </button>
             {% if draftRecipes|length > 0 %}
                 <button onclick="showTab('brouillons')" id="tab-brouillons"
-                    style="font-family:var(--font-crimson); font-size:1rem; font-weight:600; padding:0.625rem 1.25rem; border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:color .2s, border-color .2s; color:var(--color-ink-muted);">
-                    Brouillons
-                    <span style="font-size:0.8125rem; font-weight:400; margin-left:0.375rem; color:var(--color-sand);">{{ draftRecipes|length }}</span>
+                    style="flex:1; display:flex; flex-direction:column; align-items:center; gap:0.3rem; padding:0.875rem 0.5rem; border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color .2s, border-color .2s; color:var(--color-ink-muted);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                    <span style="font-family:var(--font-crimson); font-size:0.75rem; letter-spacing:0.04em; text-transform:uppercase; font-weight:600;">{{ draftRecipes|length }}</span>
                 </button>
             {% endif %}
         {% endif %}
     </div>
 
     {# ── Panneau Recettes ── #}
-    <div id="panel-recettes">
+    <div id="panel-recettes" style="padding-top:0.125rem;">
         {% if publishedRecipes|length == 0 %}
-            <div style="text-align:center; padding:4rem 1rem;">
-                <div style="font-size:3rem; margin-bottom:1rem; opacity:0.35;">🍽</div>
-                <p style="font-family:var(--font-crimson); color:var(--color-sand); font-size:1.0625rem;">Aucune recette publiée pour l'instant.</p>
+            <div style="text-align:center; padding:4.5rem 1rem;">
+                <div style="width:4rem; height:4rem; border-radius:50%; border:2px solid var(--color-cream-border); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-sand)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                </div>
+                <p style="font-family:var(--font-playfair); font-size:1.125rem; font-weight:600; color:var(--color-ink); margin-bottom:0.5rem;">Aucune recette publiée</p>
+                <p style="font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem;">Les recettes partagées apparaîtront ici.</p>
                 {% if isOwner %}
-                    <a href="{{ path('app_recipe_add') }}" class="btn-primary" style="margin-top:1.25rem; display:inline-flex;">Ajouter une recette</a>
+                    <a href="{{ path('app_recipe_add') }}" class="btn-primary" style="margin-top:1.5rem; display:inline-flex;">Partager une recette</a>
                 {% endif %}
             </div>
         {% else %}
-            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(17rem, 1fr)); gap:1.5rem;">
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.1875rem;">
                 {% for recipe in publishedRecipes %}
-                    <a href="{{ path('app_recipe_show', {id: recipe.id}) }}" class="recipe-card" style="text-decoration:none; display:block;">
-                        <div class="recipe-card-thumb">
-                            {% if recipe.imageName %}
-                                <img src="{{ asset('uploads/recipes/' ~ recipe.imageName) }}" alt="{{ recipe.title }}" style="width:100%; height:100%; object-fit:cover; display:block;">
-                            {% else %}
-                                <span style="font-size:3rem; opacity:0.35; position:relative; z-index:1;">🍽</span>
-                            {% endif %}
-                        </div>
-                        <div style="padding:1.25rem 1.25rem 1rem;">
-                            <h3 style="font-family:var(--font-playfair); font-size:1.0625rem; font-weight:600; color:var(--color-ink); margin-bottom:0.5rem; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
-                                {{ recipe.title }}
-                            </h3>
-                            <div style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-ink-muted); margin-bottom:0.875rem;">
-                                <span>{{ recipe.category.name }}</span>
-                                <span style="color:var(--color-cream-border);">·</span>
+                    <a href="{{ path('app_recipe_show', {id: recipe.id}) }}"
+                        style="position:relative; aspect-ratio:1/1; display:block; overflow:hidden; background:var(--color-parchment); text-decoration:none;"
+                        onmouseover="this.querySelector('.grid-overlay').style.opacity='1'"
+                        onmouseout="this.querySelector('.grid-overlay').style.opacity='0'">
+                        {% if recipe.imageName %}
+                            <img src="{{ asset('uploads/recipes/' ~ recipe.imageName) }}" alt="{{ recipe.title }}"
+                                style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .3s;"
+                                onmouseover="this.style.transform='scale(1.04)'"
+                                onmouseout="this.style.transform='scale(1)'">
+                        {% else %}
+                            <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.5rem; background:linear-gradient(135deg, var(--color-parchment) 0%, #EDE4D0 100%);">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(44,24,16,0.2)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2l1.5 16.5L12 21l7.5-2.5L21 2"/><path d="M3 8h18"/></svg>
+                                <span style="font-family:var(--font-crimson); font-size:0.6875rem; color:rgba(44,24,16,0.3); text-align:center; padding:0 0.5rem; line-height:1.3;">{{ recipe.title|length > 22 ? recipe.title|slice(0,22) ~ '…' : recipe.title }}</span>
+                            </div>
+                        {% endif %}
+                        {# Overlay hover #}
+                        <div class="grid-overlay"
+                            style="position:absolute; inset:0; background:linear-gradient(to top, rgba(26,13,6,0.85) 0%, rgba(26,13,6,0.3) 55%, transparent 100%); opacity:0; transition:opacity .25s; display:flex; flex-direction:column; justify-content:flex-end; padding:0.625rem;">
+                            <div style="font-family:var(--font-playfair); font-size:0.75rem; font-weight:600; color:var(--color-cream); line-height:1.3; margin-bottom:0.25rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ recipe.title }}</div>
+                            <div style="display:flex; gap:0.75rem; font-family:var(--font-crimson); font-size:0.6875rem; color:rgba(250,244,232,0.6);">
                                 <span>{{ recipe.duration }} min</span>
-                                <span style="color:var(--color-cream-border);">·</span>
                                 <span>{{ recipe.servings }} pers.</span>
                             </div>
-                            <span class="badge {{ recipe.difficulty == 'facile' ? 'badge-easy' : (recipe.difficulty == 'moyen' ? 'badge-medium' : 'badge-hard') }}">
-                                {{ recipe.difficulty }}
-                            </span>
                         </div>
                     </a>
                 {% endfor %}
@@ -174,39 +209,43 @@
 
     {# ── Panneau Favoris ── #}
     {% if isOwner %}
-        <div id="panel-favoris" style="display:none;">
+        <div id="panel-favoris" style="display:none; padding-top:0.125rem;">
             {% if user.favorites is empty %}
-                <div style="text-align:center; padding:4rem 1rem;">
-                    <div style="font-size:3rem; margin-bottom:1rem; opacity:0.35;">★</div>
-                    <p style="font-family:var(--font-crimson); color:var(--color-sand); font-size:1.0625rem;">Aucun favori enregistré pour l'instant.</p>
+                <div style="text-align:center; padding:4.5rem 1rem;">
+                    <div style="width:4rem; height:4rem; border-radius:50%; border:2px solid var(--color-cream-border); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-sand)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <p style="font-family:var(--font-playfair); font-size:1.125rem; font-weight:600; color:var(--color-ink); margin-bottom:0.5rem;">Aucun favori</p>
+                    <p style="font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem;">Les recettes mises en favori apparaîtront ici.</p>
                 </div>
             {% else %}
-                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(17rem, 1fr)); gap:1.5rem;">
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.1875rem;">
                     {% for favori in user.favorites %}
                         {% if favori.recipe %}
-                            <a href="{{ path('app_recipe_show', {id: favori.recipe.id}) }}" class="recipe-card" style="text-decoration:none; display:block;">
-                                <div class="recipe-card-thumb">
-                                    {% if favori.recipe.imageName %}
-                                        <img src="{{ asset('uploads/recipes/' ~ favori.recipe.imageName) }}" alt="{{ favori.recipe.title }}" style="width:100%; height:100%; object-fit:cover; display:block;">
-                                    {% else %}
-                                        <span style="font-size:3rem; opacity:0.35; position:relative; z-index:1;">🍽</span>
-                                    {% endif %}
-                                    <div style="position:absolute; top:0.625rem; right:0.625rem; z-index:2; background:rgba(201,150,58,0.9); border-radius:50%; width:1.75rem; height:1.75rem; display:flex; align-items:center; justify-content:center; font-size:0.875rem; color:white; backdrop-filter:blur(4px);">★</div>
-                                </div>
-                                <div style="padding:1.25rem 1.25rem 1rem;">
-                                    <h3 style="font-family:var(--font-playfair); font-size:1.0625rem; font-weight:600; color:var(--color-ink); margin-bottom:0.5rem; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
-                                        {{ favori.recipe.title }}
-                                    </h3>
-                                    <div style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-ink-muted); margin-bottom:0.875rem;">
-                                        <span>{{ favori.recipe.category.name }}</span>
-                                        <span style="color:var(--color-cream-border);">·</span>
+                            <a href="{{ path('app_recipe_show', {id: favori.recipe.id}) }}"
+                                style="position:relative; aspect-ratio:1/1; display:block; overflow:hidden; background:var(--color-parchment); text-decoration:none;"
+                                onmouseover="this.querySelector('.grid-overlay').style.opacity='1'"
+                                onmouseout="this.querySelector('.grid-overlay').style.opacity='0'">
+                                {% if favori.recipe.imageName %}
+                                    <img src="{{ asset('uploads/recipes/' ~ favori.recipe.imageName) }}" alt="{{ favori.recipe.title }}"
+                                        style="width:100%; height:100%; object-fit:cover; display:block; transition:transform .3s;"
+                                        onmouseover="this.style.transform='scale(1.04)'"
+                                        onmouseout="this.style.transform='scale(1)'">
+                                {% else %}
+                                    <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.5rem; background:linear-gradient(135deg, var(--color-parchment) 0%, #EDE4D0 100%);">
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(44,24,16,0.2)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2l1.5 16.5L12 21l7.5-2.5L21 2"/><path d="M3 8h18"/></svg>
+                                        <span style="font-family:var(--font-crimson); font-size:0.6875rem; color:rgba(44,24,16,0.3); text-align:center; padding:0 0.5rem; line-height:1.3;">{{ favori.recipe.title|length > 22 ? favori.recipe.title|slice(0,22) ~ '…' : favori.recipe.title }}</span>
+                                    </div>
+                                {% endif %}
+                                {# Badge favori #}
+                                <div style="position:absolute; top:0.4rem; right:0.4rem; z-index:2; background:rgba(201,150,58,0.85); border-radius:50%; width:1.5rem; height:1.5rem; display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:white; backdrop-filter:blur(4px);">★</div>
+                                <div class="grid-overlay"
+                                    style="position:absolute; inset:0; background:linear-gradient(to top, rgba(26,13,6,0.85) 0%, rgba(26,13,6,0.3) 55%, transparent 100%); opacity:0; transition:opacity .25s; display:flex; flex-direction:column; justify-content:flex-end; padding:0.625rem;">
+                                    <div style="font-family:var(--font-playfair); font-size:0.75rem; font-weight:600; color:var(--color-cream); line-height:1.3; margin-bottom:0.25rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ favori.recipe.title }}</div>
+                                    <div style="display:flex; gap:0.75rem; font-family:var(--font-crimson); font-size:0.6875rem; color:rgba(250,244,232,0.6);">
                                         <span>{{ favori.recipe.duration }} min</span>
-                                        <span style="color:var(--color-cream-border);">·</span>
                                         <span>{{ favori.recipe.servings }} pers.</span>
                                     </div>
-                                    <span class="badge {{ favori.recipe.difficulty == 'facile' ? 'badge-easy' : (favori.recipe.difficulty == 'moyen' ? 'badge-medium' : 'badge-hard') }}">
-                                        {{ favori.recipe.difficulty }}
-                                    </span>
                                 </div>
                             </a>
                         {% endif %}
@@ -217,13 +256,20 @@
 
         {# ── Panneau Brouillons ── #}
         {% if draftRecipes|length > 0 %}
-            <div id="panel-brouillons" style="display:none;">
-                <div style="display:flex; flex-direction:column; gap:0.625rem;">
+            <div id="panel-brouillons" style="display:none; padding-top:1rem;">
+                <div style="display:flex; flex-direction:column; gap:0.5rem;">
                     {% for recipe in draftRecipes %}
-                        <div style="display:flex; align-items:center; gap:1rem; background:white; border-radius:1rem; padding:1rem 1.25rem; box-shadow:0 1px 4px rgba(44,24,16,0.05); border-left:3px solid var(--color-cream-border);">
-                            <div style="width:2.75rem; height:2.75rem; border-radius:0.625rem; background:var(--color-parchment); display:flex; align-items:center; justify-content:center; font-size:1.125rem; flex-shrink:0; opacity:0.5;">🍽</div>
+                        <div style="display:flex; align-items:center; gap:1rem; background:white; border-radius:1rem; padding:0.875rem 1.25rem; box-shadow:0 1px 4px rgba(44,24,16,0.05); border-left:3px solid var(--color-cream-border);">
+                            {% if recipe.imageName %}
+                                <img src="{{ asset('uploads/recipes/' ~ recipe.imageName) }}" alt="{{ recipe.title }}"
+                                    style="width:3rem; height:3rem; border-radius:0.5rem; object-fit:cover; flex-shrink:0; opacity:0.6;">
+                            {% else %}
+                                <div style="width:3rem; height:3rem; border-radius:0.5rem; background:var(--color-parchment); display:flex; align-items:center; justify-content:center; flex-shrink:0; opacity:0.5;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-sand)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2l1.5 16.5L12 21l7.5-2.5L21 2"/><path d="M3 8h18"/></svg>
+                                </div>
+                            {% endif %}
                             <div style="flex:1; min-width:0;">
-                                <div style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ recipe.title }}</div>
+                                <div style="font-family:var(--font-playfair); font-size:0.9375rem; font-weight:600; color:var(--color-ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ recipe.title }}</div>
                                 <div style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand);">Créée le {{ recipe.createdAt|date('d/m/Y') }}</div>
                             </div>
                             <a href="{{ path('app_recipe_edit', {id: recipe.id}) }}"
@@ -259,11 +305,8 @@
         try { sessionStorage.setItem('profileTab', name); } catch(e) {}
     }
 
-    // Restaure l'onglet actif au rechargement
     var saved = sessionStorage.getItem('profileTab');
     showTab((saved && document.getElementById('panel-' + saved)) ? saved : 'recettes');
-
-    // Exposition globale pour les boutons onclick
     window.showTab = showTab;
 })();
 </script>

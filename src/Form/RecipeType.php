@@ -42,6 +42,7 @@ class RecipeType extends AbstractType
                 'class' => Tag::class,
                 'choice_label' => 'name',
                 'multiple' => true,
+                'expanded' => true,
             ])
             ->add('imageFile', FileType::class, [
                 'mapped' => false,
