@@ -48,6 +48,14 @@
 - **Likes** : apprécier une recette avec compteur
 - **Commentaires** : laisser un avis avec suppression par l'auteur
 - **Abonnements** : suivre / ne plus suivre un cuisinier
+- Toutes les actions sociales fonctionnent **sans rechargement de page** (AJAX via `fetch` + `X-Requested-With`)
+
+#### Administration
+- **Dashboard** : statistiques globales (utilisateurs, recettes, commentaires, bannis actifs, dépubliées) + sections récentes
+- **Gestion des recettes** : liste filtrée par statut (publiée / brouillon / dépubliée par admin), actions dépublier / republier / supprimer
+- **Gestion des commentaires** : liste avec suppression via modal de confirmation
+- **Gestion des utilisateurs** : liste paginée avec filtres (recherche + statut), actions bannir (durée prédéfinie + raison) / débannir / supprimer
+- **Sécurité** : accès réservé à `ROLE_ADMIN` — les utilisateurs bannis sont bloqués à la connexion avec message personnalisé
 
 #### Profil & Découverte
 - **Profil utilisateur** : avatar, bio, statistiques, grille de recettes publiées
@@ -95,10 +103,11 @@ FaitMaison/
 │   │   ├── LikeController.php          # POST /recette/{id}/liker
 │   │   ├── RatingController.php        # POST /recette/{id}/noter
 │   │   ├── FollowController.php        # POST /profil/{id}/suivre
-│   │   └── CommentController.php       # POST /recette/{id}/commenter
+│   │   ├── CommentController.php       # POST /recette/{id}/commenter
+│   │   └── AdminController.php         # /admin, /admin/recettes, /admin/commentaires, /admin/utilisateurs
 │   ├── Entity/
-│   │   ├── User.php                    # email, username, bio, avatarName
-│   │   ├── Recipe.php                  # title, steps, duration, imageName…
+│   │   ├── User.php                    # email, username, bio, avatarName, bannedUntil, banReason
+│   │   ├── Recipe.php                  # title, steps, duration, imageName, adminNote…
 │   │   ├── Category.php
 │   │   ├── Tag.php
 │   │   ├── Favorite.php
@@ -111,9 +120,12 @@ FaitMaison/
 │   │   ├── RecipeType.php              # imageFile mapped:false
 │   │   └── ProfileType.php             # avatarFile mapped:false
 │   ├── Repository/
-│   │   ├── RecipeRepository.php        # findPublished, findPublishedQuery, findByFollowingQuery, findRecommended
+│   │   ├── RecipeRepository.php        # findPublished, findPublishedQuery, findByFollowingQuery, findRecommended, findByAdminFilters, findAdminUnpublished
 │   │   ├── RatingRepository.php        # findAverageForRecipe, findAverageForUser
+│   │   ├── UserRepository.php          # findByAdminFilters, findBannedUsers
 │   │   └── …                           # Repositories standards pour chaque entité
+│   ├── EventSubscriber/
+│   │   └── BanSubscriber.php           # Bloque la connexion des utilisateurs bannis
 │   └── Service/
 │       └── ImageUploader.php           # upload(UploadedFile): string + delete(string): void
 ├── templates/
@@ -151,92 +163,16 @@ FaitMaison/
 
 ---
 
-## 🚀 Installation & Lancement
-
-### Prérequis
-
-- PHP 8.4 avec l'extension `pdo_pgsql` activée
-- Docker (pour PostgreSQL)
-- [Symfony CLI](https://symfony.com/download)
-
-### Lancement en local
-
-```bash
-# 1. Cloner le dépôt
-git clone <url-du-repo>
-cd FaitMaison
-
-# 2. Installer les dépendances PHP
-symfony composer install
-
-# 3. Lancer PostgreSQL
-docker compose up -d
-
-# 4. Créer la base de données et jouer les migrations
-symfony console doctrine:database:create
-symfony console doctrine:migrations:migrate
-
-# 5. (Optionnel) Charger les données de test
-symfony console doctrine:fixtures:load
-
-# 6. Compiler les assets CSS
-symfony console tailwind:build
-
-# 7. Lancer le serveur
-symfony serve
-```
-
-### Watcher CSS (développement)
-
-```bash
-symfony console tailwind:build --watch
-```
-
----
-
-## ⚡ Commandes utiles
-
-```bash
-# Migrations
-symfony console doctrine:migrations:migrate
-
-# Charger les fixtures (vide et recharge toute la BDD)
-symfony console doctrine:fixtures:load
-
-# Créer une nouvelle migration après modification d'une entité
-symfony console doctrine:migrations:diff
-
-# Réinitialiser complètement la base
-symfony console doctrine:schema:drop --force
-symfony console doctrine:migrations:migrate
-symfony console doctrine:fixtures:load
-```
-
----
-
-## 👤 Comptes de test (fixtures)
-
-Le mot de passe est **`password`** pour tous les comptes générés par les fixtures.
-
-| Rôle | Accès |
-|------|-------|
-| **Utilisateur** | `user0@example.com` … `user9@example.com` |
-
-> Les fixtures génèrent 10 utilisateurs avec ~50 recettes, 10 catégories, 10 tags, des favoris, likes, notes et abonnements aléatoires.
-
----
-
 ## 🗄️ Base de données
 
 La base est initialisée via les migrations Doctrine. Elle compte 9 entités :
 
 `user` · `recipe` · `category` · `tag` · `favorite` · `rating` · `like` · `comment` · `follow`
 
-L'entité clé utilise un champ booléen pour le suivi d'état :
-
-| Entité | États |
-|--------|-------|
-| **Recette** | `isPublished: false` (brouillon) → `isPublished: true` (publiée) |
+| Entité | États / champs notables |
+|--------|------------------------|
+| **Recette** | `isPublished: false` (brouillon) → `isPublished: true` (publiée) — `adminNote` non null = dépubliée par admin |
+| **Utilisateur** | `bannedUntil` (DateTimeImmutable, nullable) + `banReason` — `isBanned()` calculé dynamiquement |
 
 ---
 
