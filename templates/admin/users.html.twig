@@ -1,0 +1,303 @@
+{% extends 'base.html.twig' %}
+{% block title %}Admin — Utilisateurs{% endblock %}
+
+{% block body %}
+<div style="padding:2.5rem 2rem 4rem; max-width:90rem; margin:0 auto;">
+
+    {# En-tête #}
+    <div style="margin-bottom:2rem;">
+        <div style="display:inline-flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+            <a href="{{ path('app_admin_dashboard') }}" style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-terracotta); text-decoration:none; letter-spacing:0.1em; text-transform:uppercase; display:flex; align-items:center; gap:0.375rem;"
+                onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Administration
+            </a>
+        </div>
+        <h1 style="font-family:var(--font-playfair); font-size:1.875rem; font-weight:700; color:var(--color-ink);">Utilisateurs</h1>
+        <p style="font-family:var(--font-crimson); font-size:0.875rem; color:var(--color-ink-muted); margin-top:0.25rem;">
+            {{ pagination.totalItemCount }} utilisateur{{ pagination.totalItemCount > 1 ? 's' : '' }} — triés du plus récent au plus ancien
+        </p>
+    </div>
+
+    {# Filtres #}
+    <form method="get" action="{{ path('app_admin_users') }}"
+        style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:flex-end; margin-bottom:1.5rem;">
+        <input type="text" name="search" value="{{ filters.search }}" placeholder="Username ou email…"
+            style="height:2.75rem; padding:0 0.875rem; border-radius:0.625rem; border:1px solid var(--color-cream-border); font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink); background:white; outline:none; min-width:14rem;"
+            onfocus="this.style.borderColor='var(--color-terracotta)'" onblur="this.style.borderColor='var(--color-cream-border)'">
+        <select name="status"
+            style="height:2.75rem; padding:0 0.875rem; border-radius:0.625rem; border:1px solid var(--color-cream-border); font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink); background:white; outline:none; cursor:pointer;"
+            onfocus="this.style.borderColor='var(--color-terracotta)'" onblur="this.style.borderColor='var(--color-cream-border)'">
+            <option value="">Tous les statuts</option>
+            <option value="active" {{ filters.status == 'active' ? 'selected' : '' }}>Non banni</option>
+            <option value="banned" {{ filters.status == 'banned' ? 'selected' : '' }}>Banni</option>
+        </select>
+        <button type="submit" class="btn-primary">Filtrer</button>
+        {% if filters.search or filters.status %}
+            <a href="{{ path('app_admin_users') }}" class="btn-ghost">Réinitialiser</a>
+        {% endif %}
+    </form>
+
+    {# Tableau #}
+    <div class="content-card" style="padding:0; overflow:hidden; margin-bottom:2rem;">
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-family:var(--font-crimson); font-size:0.9375rem;">
+                <thead>
+                    <tr style="border-bottom:2px solid var(--color-cream-border); background:var(--color-cream);">
+                        <th style="padding:0.875rem 1.25rem; text-align:left; font-weight:600; color:var(--color-ink);">Utilisateur</th>
+                        <th style="padding:0.875rem 1rem; text-align:left; font-weight:600; color:var(--color-ink);">Email</th>
+                        <th style="padding:0.875rem 1rem; text-align:center; font-weight:600; color:var(--color-ink); white-space:nowrap;">Recettes</th>
+                        <th style="padding:0.875rem 1rem; text-align:left; font-weight:600; color:var(--color-ink); white-space:nowrap;">Inscription</th>
+                        <th style="padding:0.875rem 1rem; text-align:center; font-weight:600; color:var(--color-ink);">Statut</th>
+                        <th style="padding:0.875rem 1.25rem; text-align:right; font-weight:600; color:var(--color-ink);">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in pagination %}
+                        <tr style="border-bottom:1px solid var(--color-cream-border); transition:background .15s;"
+                            onmouseover="this.style.background='var(--color-cream)'"
+                            onmouseout="this.style.background='transparent'">
+
+                            <td style="padding:1rem 1.25rem;">
+                                <div style="display:flex; align-items:center; gap:0.75rem;">
+                                    {% if user.avatarName %}
+                                        <img src="{{ asset('uploads/recipes/' ~ user.avatarName) }}" alt="{{ user.username }}"
+                                            style="width:2rem; height:2rem; border-radius:50%; object-fit:cover; flex-shrink:0;">
+                                    {% else %}
+                                        <div style="width:2rem; height:2rem; border-radius:50%; background:var(--color-terracotta); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:0.75rem; font-weight:700; color:var(--color-cream); flex-shrink:0;">
+                                            {{ user.username|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <a href="{{ path('app_profile_show', {id: user.id}) }}"
+                                            style="color:var(--color-ink); text-decoration:none; font-weight:500;"
+                                            onmouseover="this.style.color='var(--color-terracotta)'"
+                                            onmouseout="this.style.color='var(--color-ink)'">
+                                            {{ user.username }}
+                                        </a>
+                                        {% if 'ROLE_ADMIN' in user.roles %}
+                                            <span style="display:inline-block; margin-left:0.375rem; font-size:0.6875rem; font-weight:600; padding:0.1rem 0.4rem; border-radius:999px; background:rgba(201,150,58,0.15); color:var(--color-gold); border:1px solid rgba(201,150,58,0.3);">ADMIN</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td style="padding:1rem; color:var(--color-ink-muted); font-size:0.875rem;">
+                                {{ user.email }}
+                            </td>
+
+                            <td style="padding:1rem; text-align:center; color:var(--color-ink-muted);">
+                                {{ user.recipes|length }}
+                            </td>
+
+                            <td style="padding:1rem; color:var(--color-ink-muted); white-space:nowrap; font-size:0.875rem;">
+                                {{ user.createdAt|date('d/m/Y') }}
+                            </td>
+
+                            <td style="padding:1rem; text-align:center;">
+                                {% if user.isBanned %}
+                                    <div style="display:flex; flex-direction:column; align-items:center; gap:0.25rem;">
+                                        <span style="display:inline-flex; align-items:center; gap:0.3rem; font-size:0.8125rem; font-weight:500; padding:0.25rem 0.625rem; border-radius:999px; background:#FEF2F2; color:#9B3220; border:1px solid #FECACA;">
+                                            <span style="width:6px; height:6px; border-radius:50%; background:#EF4444; display:inline-block;"></span>
+                                            Banni
+                                        </span>
+                                        <span style="font-size:0.75rem; color:var(--color-sand);">jusqu'au {{ user.bannedUntil|date('d/m/Y') }}</span>
+                                    </div>
+                                {% else %}
+                                    <span style="display:inline-flex; align-items:center; gap:0.3rem; font-size:0.8125rem; font-weight:500; padding:0.25rem 0.625rem; border-radius:999px; background:#D1FAE5; color:#065F46;">
+                                        <span style="width:6px; height:6px; border-radius:50%; background:#10B981; display:inline-block;"></span>
+                                        Actif
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td style="padding:1rem 1.25rem; text-align:right;">
+                                <div style="display:flex; gap:0.5rem; justify-content:flex-end; align-items:center;">
+                                    {% if user != app.user %}
+                                        {% if user.isBanned %}
+                                            <button type="button"
+                                                    onclick="openUnbanModal({{ user.id }}, {{ user.username|json_encode }})"
+                                                    style="font-family:var(--font-crimson); font-size:0.875rem; padding:0.375rem 0.75rem; border-radius:0.5rem; border:1px solid #6EE7B7; background:transparent; color:#065F46; cursor:pointer; transition:all .15s;"
+                                                    onmouseover="this.style.background='#D1FAE5'" onmouseout="this.style.background='transparent'">
+                                                Débannir
+                                            </button>
+                                        {% else %}
+                                            <button type="button"
+                                                    onclick="openBanModal({{ user.id }}, {{ user.username|json_encode }})"
+                                                    style="font-family:var(--font-crimson); font-size:0.875rem; padding:0.375rem 0.75rem; border-radius:0.5rem; border:1px solid #FECACA; background:transparent; color:#9B3220; cursor:pointer; transition:all .15s;"
+                                                    onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                                                Bannir
+                                            </button>
+                                        {% endif %}
+                                        <button type="button"
+                                                onclick="openDeleteUserModal({{ user.id }}, {{ user.username|json_encode }})"
+                                                style="font-family:var(--font-crimson); font-size:0.875rem; padding:0.375rem 0.75rem; border-radius:0.5rem; border:1px solid #FECACA; background:transparent; color:#9B3220; cursor:pointer; transition:all .15s;"
+                                                onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                                            Supprimer
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" style="padding:3rem; text-align:center; color:var(--color-sand); font-family:var(--font-crimson);">
+                                Aucun utilisateur.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {# ── Pagination ── #}
+    {% if pagination.pageCount > 1 %}
+        <nav style="display:flex; justify-content:center; align-items:center; gap:0.375rem;">
+            {% if pagination.currentPageNumber > 1 %}
+                <a href="{{ path('app_admin_users', {page: pagination.currentPageNumber - 1, search: filters.search, status: filters.status}) }}"
+                    style="display:inline-flex; align-items:center; gap:0.375rem; padding:0.5rem 1rem; border-radius:0.625rem; border:1px solid var(--color-cream-border); font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); text-decoration:none; transition:all .15s; background:white;"
+                    onmouseover="this.style.borderColor='var(--color-terracotta)'; this.style.color='var(--color-terracotta)'"
+                    onmouseout="this.style.borderColor='var(--color-cream-border)'; this.style.color='var(--color-ink-muted)'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Précédent
+                </a>
+            {% endif %}
+
+            {% for p in 1..pagination.pageCount %}
+                {% if p == pagination.currentPageNumber %}
+                    <span style="display:inline-flex; align-items:center; justify-content:center; width:2.25rem; height:2.25rem; border-radius:0.5rem; background:var(--color-terracotta); font-family:var(--font-crimson); font-size:0.9375rem; font-weight:600; color:var(--color-cream);">{{ p }}</span>
+                {% elseif p == 1 or p == pagination.pageCount or (p >= pagination.currentPageNumber - 2 and p <= pagination.currentPageNumber + 2) %}
+                    <a href="{{ path('app_admin_users', {page: p, search: filters.search, status: filters.status}) }}"
+                        style="display:inline-flex; align-items:center; justify-content:center; width:2.25rem; height:2.25rem; border-radius:0.5rem; border:1px solid var(--color-cream-border); font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); text-decoration:none; transition:all .15s; background:white;"
+                        onmouseover="this.style.borderColor='var(--color-terracotta)'; this.style.color='var(--color-terracotta)'"
+                        onmouseout="this.style.borderColor='var(--color-cream-border)'; this.style.color='var(--color-ink-muted)'">
+                        {{ p }}
+                    </a>
+                {% elseif p == pagination.currentPageNumber - 3 or p == pagination.currentPageNumber + 3 %}
+                    <span style="font-family:var(--font-crimson); color:var(--color-sand); padding:0 0.25rem;">…</span>
+                {% endif %}
+            {% endfor %}
+
+            {% if pagination.currentPageNumber < pagination.pageCount %}
+                <a href="{{ path('app_admin_users', {page: pagination.currentPageNumber + 1, search: filters.search, status: filters.status}) }}"
+                    style="display:inline-flex; align-items:center; gap:0.375rem; padding:0.5rem 1rem; border-radius:0.625rem; border:1px solid var(--color-cream-border); font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); text-decoration:none; transition:all .15s; background:white;"
+                    onmouseover="this.style.borderColor='var(--color-terracotta)'; this.style.color='var(--color-terracotta)'"
+                    onmouseout="this.style.borderColor='var(--color-cream-border)'; this.style.color='var(--color-ink-muted)'">
+                    Suivant
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+            {% endif %}
+        </nav>
+    {% endif %}
+
+</div>
+
+{# ── Modal bannir ── #}
+<div id="modal-ban" style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; padding:1rem;">
+    <div style="position:absolute; inset:0; background:rgba(26,13,6,0.6); backdrop-filter:blur(2px);" onclick="closeModal('modal-ban')"></div>
+    <div style="position:relative; background:white; border-radius:1.25rem; padding:2rem; width:100%; max-width:30rem; box-shadow:0 20px 60px rgba(26,13,6,0.2);">
+        <h2 style="font-family:var(--font-playfair); font-size:1.25rem; font-weight:700; color:var(--color-ink); margin-bottom:0.375rem;">Bannir l'utilisateur</h2>
+        <p id="ban-username" style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); margin-bottom:1.5rem;"></p>
+
+        <form id="ban-form" method="post">
+            <input type="hidden" name="_token" id="ban-token" value="">
+
+            <div style="margin-bottom:1.25rem;">
+                <label style="display:block; font-family:var(--font-crimson); font-size:0.9375rem; font-weight:600; color:var(--color-ink); margin-bottom:0.5rem;">
+                    Durée du ban <span style="color:#9B3220;">*</span>
+                </label>
+                <select name="duration" required
+                    style="width:100%; box-sizing:border-box; height:2.875rem; padding:0 0.875rem; border-radius:0.625rem; border:1px solid var(--color-cream-border); font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink); background:var(--color-cream); outline:none; cursor:pointer;"
+                    onfocus="this.style.borderColor='var(--color-terracotta)'"
+                    onblur="this.style.borderColor='var(--color-cream-border)'">
+                    <option value="1">1 jour</option>
+                    <option value="7" selected>7 jours</option>
+                    <option value="30">30 jours</option>
+                    <option value="180">6 mois</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom:1.5rem;">
+                <label style="display:block; font-family:var(--font-crimson); font-size:0.9375rem; font-weight:600; color:var(--color-ink); margin-bottom:0.5rem;">
+                    Motif <span style="color:#9B3220;">*</span>
+                </label>
+                <textarea name="reason" rows="3" required
+                    placeholder="Pseudo ou contenu obscène, comportement dérangeant…"
+                    style="width:100%; box-sizing:border-box; padding:0.75rem; border-radius:0.625rem; border:1px solid var(--color-cream-border); font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink); background:var(--color-cream); resize:vertical; outline:none;"
+                    onfocus="this.style.borderColor='var(--color-terracotta)'"
+                    onblur="this.style.borderColor='var(--color-cream-border)'"></textarea>
+            </div>
+
+            <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+                <button type="button" onclick="closeModal('modal-ban')" class="btn-ghost">Annuler</button>
+                <button type="submit" class="btn-primary" style="background:#9B3220; border-color:#9B3220;">Bannir</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# ── Modal débannir ── #}
+<div id="modal-unban" style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; padding:1rem;">
+    <div style="position:absolute; inset:0; background:rgba(26,13,6,0.6); backdrop-filter:blur(2px);" onclick="closeModal('modal-unban')"></div>
+    <div style="position:relative; background:white; border-radius:1.25rem; padding:2rem; width:100%; max-width:26rem; box-shadow:0 20px 60px rgba(26,13,6,0.2);">
+        <h2 style="font-family:var(--font-playfair); font-size:1.25rem; font-weight:700; color:var(--color-ink); margin-bottom:0.5rem;">Débannir l'utilisateur</h2>
+        <p style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); margin-bottom:0.375rem;">Vous êtes sur le point de débannir :</p>
+        <p id="unban-username" style="font-family:var(--font-crimson); font-size:0.9375rem; font-weight:600; color:var(--color-ink); margin-bottom:1.5rem;"></p>
+        <form id="unban-form" method="post">
+            <input type="hidden" name="_token" id="unban-token" value="">
+            <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+                <button type="button" onclick="closeModal('modal-unban')" class="btn-ghost">Annuler</button>
+                <button type="submit" class="btn-primary" style="background:#065F46; border-color:#065F46;">Débannir</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# ── Modal supprimer utilisateur ── #}
+<div id="modal-delete-user" style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; padding:1rem;">
+    <div style="position:absolute; inset:0; background:rgba(26,13,6,0.6); backdrop-filter:blur(2px);" onclick="closeModal('modal-delete-user')"></div>
+    <div style="position:relative; background:white; border-radius:1.25rem; padding:2rem; width:100%; max-width:26rem; box-shadow:0 20px 60px rgba(26,13,6,0.2);">
+        <h2 style="font-family:var(--font-playfair); font-size:1.25rem; font-weight:700; color:var(--color-ink); margin-bottom:0.5rem;">Supprimer le compte</h2>
+        <p style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); margin-bottom:0.375rem;">Vous êtes sur le point de supprimer définitivement :</p>
+        <p id="delete-user-username" style="font-family:var(--font-crimson); font-size:0.9375rem; font-weight:600; color:var(--color-ink); margin-bottom:1.25rem;"></p>
+        <p style="font-family:var(--font-crimson); font-size:0.875rem; color:#9B3220; background:#FEF2F2; border:1px solid #FECACA; border-radius:0.5rem; padding:0.625rem 0.875rem; margin-bottom:1.5rem;">
+            Toutes ses recettes, commentaires et données seront supprimés. Cette action est irréversible.
+        </p>
+        <form id="delete-user-form" method="post">
+            <input type="hidden" name="_token" id="delete-user-token" value="">
+            <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+                <button type="button" onclick="closeModal('modal-delete-user')" class="btn-ghost">Annuler</button>
+                <button type="submit" class="btn-primary" style="background:#9B3220; border-color:#9B3220;">Supprimer définitivement</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+function openUnbanModal(id, username) {
+    document.getElementById('unban-form').action = '/admin/utilisateur/' + id + '/debannir';
+    document.getElementById('unban-username').textContent = '« ' + username + ' »';
+    openModal('modal-unban');
+}
+
+function openBanModal(id, username) {
+    document.getElementById('ban-form').action = '/admin/utilisateur/' + id + '/bannir';
+    document.getElementById('ban-username').textContent = '« ' + username + ' »';
+    openModal('modal-ban');
+}
+
+function openDeleteUserModal(id, username) {
+    document.getElementById('delete-user-form').action = '/admin/utilisateur/' + id + '/supprimer';
+    document.getElementById('delete-user-username').textContent = '« ' + username + ' »';
+    openModal('modal-delete-user');
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { closeModal('modal-ban'); closeModal('modal-unban'); closeModal('modal-delete-user'); }
+});
+</script>
+{% endblock %}

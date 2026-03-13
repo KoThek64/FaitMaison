@@ -145,4 +145,36 @@ class RecipeRepository extends ServiceEntityRepository
             ->orderBy('r.createdAt', 'DESC')
             ->getQuery();
     }
+
+    public function findByAdminFilters(array $filters = []): array
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->join('r.author', 'a')
+            ->orderBy('r.createdAt', 'DESC');
+
+        if (!empty($filters['search'])) {
+            $qb->andWhere('r.title LIKE :search OR a.username LIKE :search')
+                ->setParameter('search', '%' . $filters['search'] . '%');
+        }
+
+        if (!empty($filters['status'])) {
+            match ($filters['status']) {
+                'published'   => $qb->andWhere('r.isPublished = true'),
+                'draft'       => $qb->andWhere('r.isPublished = false')->andWhere('r.adminNote IS NULL'),
+                'unpublished' => $qb->andWhere('r.adminNote IS NOT NULL'),
+                default       => null,
+            };
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findAdminUnpublished(): array
+    {
+        return $this->createQueryBuilder('r')
+            ->where('r.adminNote IS NOT NULL')
+            ->orderBy('r.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

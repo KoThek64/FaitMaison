@@ -32,4 +32,46 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }
+
+    public function findByAdminFilters(array $filters = []): \Doctrine\ORM\Query
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->orderBy('u.createdAt', 'DESC');
+
+        if (!empty($filters['search'])) {
+            $qb->andWhere('u.username LIKE :search OR u.email LIKE :search')
+                ->setParameter('search', '%' . $filters['search'] . '%');
+        }
+
+        if (!empty($filters['status'])) {
+            if ($filters['status'] === 'banned') {
+                $qb->andWhere('u.bannedUntil IS NOT NULL')
+                   ->andWhere('u.bannedUntil > :now')
+                   ->setParameter('now', new \DateTimeImmutable());
+            } elseif ($filters['status'] === 'active') {
+                $qb->andWhere('u.bannedUntil IS NULL OR u.bannedUntil <= :now')
+                   ->setParameter('now', new \DateTimeImmutable());
+            }
+        }
+
+        return $qb->getQuery();
+    }
+
+    public function findUserByDesc()
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->orderBy('u.createdAt', 'DESC');
+
+        return $qb->getQuery();
+    }
+
+    public function findBannedUsers()
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->where('u.bannedUntil IS NOT NULL')
+            ->andWhere('u.bannedUntil > :now')
+            ->setParameter('now', new \DateTimeImmutable());
+
+        return $qb->getQuery()->getResult();
+    }
 }

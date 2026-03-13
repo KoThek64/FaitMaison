@@ -1,0 +1,226 @@
+{% extends 'base.html.twig' %}
+{% block title %}Administration{% endblock %}
+
+{% block body %}
+<div style="padding:2.5rem 2rem 4rem; max-width:80rem; margin:0 auto;">
+
+    {# En-tête #}
+    <div style="margin-bottom:2.5rem;">
+        <div style="display:inline-flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+            <span style="height:1px; width:1.5rem; background:var(--color-terracotta); display:block;"></span>
+            <span style="font-family:var(--font-crimson); font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--color-terracotta);">Panneau d'administration</span>
+        </div>
+        <h1 style="font-family:var(--font-playfair); font-size:2rem; font-weight:700; color:var(--color-ink); margin-bottom:0.25rem;">Tableau de bord</h1>
+        <p style="font-family:var(--font-crimson); font-size:1rem; color:var(--color-ink-muted);">Vue d'ensemble de la plateforme.</p>
+    </div>
+
+    {# ── Stats ── #}
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(14rem, 1fr)); gap:1.25rem; margin-bottom:3rem; align-items:stretch;">
+
+        <a href="{{ path('app_admin_users') }}" style="text-decoration:none; display:flex; flex-direction:column;">
+            <div class="content-card" style="display:flex; align-items:center; gap:1.25rem; transition:box-shadow .2s; flex:1;"
+                onmouseover="this.style.boxShadow='0 4px 20px rgba(26,13,6,0.1)'" onmouseout="this.style.boxShadow=''">
+                <div style="width:3rem; height:3rem; border-radius:0.875rem; background:rgba(196,98,45,0.1); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-terracotta)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div>
+                    <div style="font-family:var(--font-playfair); font-size:2rem; font-weight:700; color:var(--color-ink); line-height:1;">{{ userCount }}</div>
+                    <div style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); margin-top:0.125rem;">Utilisateurs</div>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ path('app_admin_recipe') }}" style="text-decoration:none; display:flex; flex-direction:column;">
+            <div class="content-card" style="display:flex; align-items:center; gap:1.25rem; transition:box-shadow .2s; flex:1;"
+                onmouseover="this.style.boxShadow='0 4px 20px rgba(26,13,6,0.1)'" onmouseout="this.style.boxShadow=''">
+                <div style="width:3rem; height:3rem; border-radius:0.875rem; background:rgba(196,98,45,0.1); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-terracotta)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+                <div>
+                    <div style="font-family:var(--font-playfair); font-size:2rem; font-weight:700; color:var(--color-ink); line-height:1;">{{ recipeCount }}</div>
+                    <div style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); margin-top:0.125rem;">Recettes</div>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ path('app_admin_comments') }}" style="text-decoration:none; display:flex; flex-direction:column;">
+            <div class="content-card" style="display:flex; align-items:center; gap:1.25rem; transition:box-shadow .2s; flex:1;"
+                onmouseover="this.style.boxShadow='0 4px 20px rgba(26,13,6,0.1)'" onmouseout="this.style.boxShadow=''">
+                <div style="width:3rem; height:3rem; border-radius:0.875rem; background:rgba(196,98,45,0.1); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-terracotta)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div>
+                    <div style="font-family:var(--font-playfair); font-size:2rem; font-weight:700; color:var(--color-ink); line-height:1;">{{ commentCount }}</div>
+                    <div style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); margin-top:0.125rem;">Commentaires</div>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ path('app_admin_users', {status: 'banned'}) }}" style="text-decoration:none; display:flex; flex-direction:column;">
+            <div class="content-card" style="display:flex; align-items:center; gap:1.25rem; transition:box-shadow .2s; flex:1;"
+                onmouseover="this.style.boxShadow='0 4px 20px rgba(26,13,6,0.1)'" onmouseout="this.style.boxShadow=''">
+                <div style="width:3rem; height:3rem; border-radius:0.875rem; background:rgba(239,68,68,0.1); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                </div>
+                <div>
+                    <div style="font-family:var(--font-playfair); font-size:2rem; font-weight:700; color:var(--color-ink); line-height:1;">{{ bannedUsers|length }}</div>
+                    <div style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); margin-top:0.125rem;">Bannis actifs</div>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ path('app_admin_recipe', {status: 'unpublished'}) }}" style="text-decoration:none; display:flex; flex-direction:column;">
+            <div class="content-card" style="display:flex; align-items:center; gap:1.25rem; transition:box-shadow .2s; flex:1;"
+                onmouseover="this.style.boxShadow='0 4px 20px rgba(26,13,6,0.1)'" onmouseout="this.style.boxShadow=''">
+                <div style="width:3rem; height:3rem; border-radius:0.875rem; background:rgba(245,158,11,0.1); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <div>
+                    <div style="font-family:var(--font-playfair); font-size:2rem; font-weight:700; color:var(--color-ink); line-height:1;">{{ unpublishedRecipes|length }}</div>
+                    <div style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); margin-top:0.125rem; white-space:nowrap;">Dépubliées</div>
+                </div>
+            </div>
+        </a>
+
+    </div>
+
+    {# ── Grille de sections ── #}
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(22rem, 1fr)); gap:1.5rem;">
+
+        {# Dernières recettes #}
+        <div class="content-card" style="padding:0; overflow:hidden;">
+            <div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--color-cream-border); display:flex; align-items:center; justify-content:space-between;">
+                <h2 style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink);">Dernières recettes</h2>
+                <a href="{{ path('app_admin_recipe') }}" style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-terracotta); text-decoration:none;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Voir tout →</a>
+            </div>
+            {% for recipe in recentRecipes %}
+                <div style="padding:0.875rem 1.5rem; border-bottom:1px solid var(--color-cream-border); display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+                    <div style="min-width:0;">
+                        <a href="{{ path('app_recipe_show', {id: recipe.id}) }}"
+                            style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink); text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;"
+                            onmouseover="this.style.color='var(--color-terracotta)'" onmouseout="this.style.color='var(--color-ink)'">
+                            {{ recipe.title }}
+                        </a>
+                        <span style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand);">par {{ recipe.author.username }}</span>
+                    </div>
+                    <div style="flex-shrink:0;">
+                        {% if recipe.isPublished %}
+                            <span style="font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:999px; background:#D1FAE5; color:#065F46; font-family:var(--font-crimson);">Publiée</span>
+                        {% elseif recipe.adminNote %}
+                            <span style="font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:999px; background:#FEF2F2; color:#9B3220; border:1px solid #FECACA; font-family:var(--font-crimson);">Dépubliée</span>
+                        {% else %}
+                            <span style="font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:999px; background:#F3F4F6; color:#6B7280; font-family:var(--font-crimson);">Brouillon</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <p style="padding:1.5rem; font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem;">Aucune recette.</p>
+            {% endfor %}
+        </div>
+
+        {# Derniers utilisateurs #}
+        <div class="content-card" style="padding:0; overflow:hidden;">
+            <div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--color-cream-border); display:flex; align-items:center; justify-content:space-between;">
+                <h2 style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink);">Derniers inscrits</h2>
+                <a href="{{ path('app_admin_users') }}" style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-terracotta); text-decoration:none;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Voir tout →</a>
+            </div>
+            {% for user in recentUsers %}
+                <div style="padding:0.875rem 1.5rem; border-bottom:1px solid var(--color-cream-border); display:flex; align-items:center; gap:0.75rem;">
+                    {% if user.avatarName %}
+                        <img src="{{ asset('uploads/recipes/' ~ user.avatarName) }}" alt="{{ user.username }}"
+                            style="width:2rem; height:2rem; border-radius:50%; object-fit:cover; flex-shrink:0;">
+                    {% else %}
+                        <div style="width:2rem; height:2rem; border-radius:50%; background:var(--color-terracotta); display:flex; align-items:center; justify-content:center; font-family:var(--font-playfair); font-size:0.75rem; font-weight:700; color:var(--color-cream); flex-shrink:0;">
+                            {{ user.username|first|upper }}
+                        </div>
+                    {% endif %}
+                    <div style="min-width:0; flex:1;">
+                        <a href="{{ path('app_profile_show', {id: user.id}) }}"
+                            style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink); text-decoration:none;"
+                            onmouseover="this.style.color='var(--color-terracotta)'" onmouseout="this.style.color='var(--color-ink)'">
+                            {{ user.username }}
+                        </a>
+                    </div>
+                    <span style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand); white-space:nowrap; flex-shrink:0;">{{ user.createdAt|date('d/m/Y') }}</span>
+                </div>
+            {% else %}
+                <p style="padding:1.5rem; font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem;">Aucun utilisateur.</p>
+            {% endfor %}
+        </div>
+
+        {# Derniers commentaires #}
+        <div class="content-card" style="padding:0; overflow:hidden;">
+            <div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--color-cream-border); display:flex; align-items:center; justify-content:space-between;">
+                <h2 style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink);">Derniers commentaires</h2>
+                <a href="{{ path('app_admin_comments') }}" style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-terracotta); text-decoration:none;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Voir tout →</a>
+            </div>
+            {% for comment in recentComments %}
+                <div style="padding:0.875rem 1.5rem; border-bottom:1px solid var(--color-cream-border);">
+                    <div style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:0.25rem;">
+                        {{ comment.content }}
+                    </div>
+                    <div style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand);">
+                        par {{ comment.author.username }} · <a href="{{ path('app_recipe_show', {id: comment.recipe.id}) }}" style="color:var(--color-terracotta); text-decoration:none;">{{ comment.recipe.title }}</a>
+                    </div>
+                </div>
+            {% else %}
+                <p style="padding:1.5rem; font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem;">Aucun commentaire.</p>
+            {% endfor %}
+        </div>
+
+        {# Dépubliées par admin #}
+        <div class="content-card" style="padding:0; overflow:hidden;">
+            <div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--color-cream-border); display:flex; align-items:center; justify-content:space-between;">
+                <h2 style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink);">Dépubliées par admin</h2>
+                <a href="{{ path('app_admin_recipe', {status: 'unpublished'}) }}" style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-terracotta); text-decoration:none;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Voir tout →</a>
+            </div>
+            {% for recipe in unpublishedRecipes %}
+                <div style="padding:0.875rem 1.5rem; border-bottom:1px solid var(--color-cream-border);">
+                    <a href="{{ path('app_recipe_show', {id: recipe.id}) }}"
+                        style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink); text-decoration:none; display:block; margin-bottom:0.2rem;"
+                        onmouseover="this.style.color='var(--color-terracotta)'" onmouseout="this.style.color='var(--color-ink)'">
+                        {{ recipe.title }}
+                    </a>
+                    {% if recipe.adminNote %}
+                        <div style="font-family:var(--font-crimson); font-size:0.8125rem; color:#9B3220; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;">
+                            {{ recipe.adminNote }}
+                        </div>
+                    {% endif %}
+                    <span style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand);">par {{ recipe.author.username }}</span>
+                </div>
+            {% else %}
+                <p style="padding:1.5rem; font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem;">Aucune recette dépubliée.</p>
+            {% endfor %}
+        </div>
+
+        {# Utilisateurs bannis #}
+        <div class="content-card" style="padding:0; overflow:hidden;">
+            <div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--color-cream-border); display:flex; align-items:center; justify-content:space-between;">
+                <h2 style="font-family:var(--font-playfair); font-size:1rem; font-weight:600; color:var(--color-ink);">Bannis actifs</h2>
+                <a href="{{ path('app_admin_users', {status: 'banned'}) }}" style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-terracotta); text-decoration:none;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Voir tout →</a>
+            </div>
+            {% for user in bannedUsers %}
+                <div style="padding:0.875rem 1.5rem; border-bottom:1px solid var(--color-cream-border);">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:0.2rem;">
+                        <a href="{{ path('app_profile_show', {id: user.id}) }}"
+                            style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink); text-decoration:none;"
+                            onmouseover="this.style.color='var(--color-terracotta)'" onmouseout="this.style.color='var(--color-ink)'">
+                            {{ user.username }}
+                        </a>
+                        <span style="font-family:var(--font-crimson); font-size:0.8125rem; color:#9B3220; white-space:nowrap; flex-shrink:0;">jusqu'au {{ user.bannedUntil|date('d/m/Y') }}</span>
+                    </div>
+                    {% if user.banReason %}
+                        <div style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-sand); display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;">
+                            {{ user.banReason }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p style="padding:1.5rem; font-family:var(--font-crimson); color:var(--color-sand); font-size:0.9375rem;">Aucun utilisateur banni.</p>
+            {% endfor %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

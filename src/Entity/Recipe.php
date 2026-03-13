@@ -58,13 +58,13 @@ class Recipe
     /**
      * @var Collection<int, Rating>
      */
-    #[ORM\OneToMany(targetEntity: Rating::class, mappedBy: 'recipe')]
+    #[ORM\OneToMany(targetEntity: Rating::class, mappedBy: 'recipe', orphanRemoval: true)]
     private Collection $ratings;
 
     /**
      * @var Collection<int, Favorite>
      */
-    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'recipe')]
+    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'recipe', orphanRemoval: true)]
     private Collection $favorites;
 
     /**
@@ -76,14 +76,17 @@ class Recipe
     /**
      * @var Collection<int, Like>
      */
-    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'recipe')]
+    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'recipe', orphanRemoval: true)]
     private Collection $likes;
 
     /**
      * @var Collection<int, Comment>
      */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'recipe')]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'recipe', orphanRemoval: true)]
     private Collection $comments;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $adminNote = null;
 
     public function __construct()
     {
@@ -383,6 +386,18 @@ class Recipe
                 $comment->setRecipe(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAdminNote(): ?string
+    {
+        return $this->adminNote;
+    }
+
+    public function setAdminNote(?string $adminNote): static
+    {
+        $this->adminNote = $adminNote;
 
         return $this;
     }

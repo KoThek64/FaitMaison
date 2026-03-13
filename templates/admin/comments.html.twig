@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+{% block title %}Admin — Commentaires{% endblock %}
+
+{% block body %}
+<div style="padding:2.5rem 2rem 4rem; max-width:90rem; margin:0 auto;">
+
+    {# En-tête #}
+    <div style="margin-bottom:2rem;">
+        <div style="display:inline-flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+            <a href="{{ path('app_admin_dashboard') }}" style="font-family:var(--font-crimson); font-size:0.8125rem; color:var(--color-terracotta); text-decoration:none; letter-spacing:0.1em; text-transform:uppercase; display:flex; align-items:center; gap:0.375rem;"
+                onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Administration
+            </a>
+        </div>
+        <h1 style="font-family:var(--font-playfair); font-size:1.875rem; font-weight:700; color:var(--color-ink);">Commentaires</h1>
+    </div>
+
+    {# Tableau #}
+    <div class="content-card" style="padding:0; overflow:hidden;">
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-family:var(--font-crimson); font-size:0.9375rem;">
+                <thead>
+                    <tr style="border-bottom:2px solid var(--color-cream-border); background:var(--color-cream);">
+                        <th style="padding:0.875rem 1.25rem; text-align:left; font-weight:600; color:var(--color-ink);">Contenu</th>
+                        <th style="padding:0.875rem 1rem; text-align:left; font-weight:600; color:var(--color-ink); white-space:nowrap;">Auteur</th>
+                        <th style="padding:0.875rem 1rem; text-align:left; font-weight:600; color:var(--color-ink); white-space:nowrap;">Recette</th>
+                        <th style="padding:0.875rem 1rem; text-align:left; font-weight:600; color:var(--color-ink); white-space:nowrap;">Date</th>
+                        <th style="padding:0.875rem 1.25rem; text-align:right; font-weight:600; color:var(--color-ink); white-space:nowrap;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comment in comments %}
+                        <tr style="border-bottom:1px solid var(--color-cream-border); transition:background .15s;"
+                            onmouseover="this.style.background='var(--color-cream)'"
+                            onmouseout="this.style.background='transparent'">
+
+                            <td style="padding:1rem 1.25rem; max-width:24rem;">
+                                <span style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; color:var(--color-ink); line-height:1.5;">
+                                    {{ comment.content }}
+                                </span>
+                            </td>
+
+                            <td style="padding:1rem; white-space:nowrap;">
+                                <a href="{{ path('app_profile_show', {id: comment.author.id}) }}"
+                                    style="color:var(--color-terracotta); text-decoration:none;"
+                                    onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
+                                    {{ comment.author.username }}
+                                </a>
+                            </td>
+
+                            <td style="padding:1rem; max-width:14rem;">
+                                <a href="{{ path('app_recipe_show', {id: comment.recipe.id}) }}"
+                                    style="color:var(--color-ink-muted); text-decoration:none; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;"
+                                    onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-ink-muted)'">
+                                    {{ comment.recipe.title }}
+                                </a>
+                            </td>
+
+                            <td style="padding:1rem; color:var(--color-ink-muted); white-space:nowrap; font-size:0.875rem;">
+                                {{ comment.createdAt|date('d/m/Y H:i', 'Europe/Paris') }}
+                            </td>
+
+                            <td style="padding:1rem 1.25rem; text-align:right;">
+                                <button type="button"
+                                    onclick="openDeleteCommentModal('{{ path('app_admin_comment_delete', {id: comment.id}) }}', '{{ csrf_token('admin_comment_' ~ comment.id) }}')"
+                                    style="font-family:var(--font-crimson); font-size:0.875rem; padding:0.375rem 0.75rem; border-radius:0.5rem; border:1px solid #FECACA; background:transparent; color:#9B3220; cursor:pointer; transition:all .15s;"
+                                    onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                                    Supprimer
+                                </button>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" style="padding:3rem; text-align:center; color:var(--color-sand); font-family:var(--font-crimson);">
+                                Aucun commentaire.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+{# ── Modal suppression commentaire ── #}
+<div id="modal-delete-comment" style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; padding:1rem;">
+    <div style="position:absolute; inset:0; background:rgba(26,13,6,0.6); backdrop-filter:blur(2px);" onclick="closeDeleteCommentModal()"></div>
+    <div style="position:relative; background:white; border-radius:1.25rem; padding:2rem; width:100%; max-width:26rem; box-shadow:0 20px 60px rgba(26,13,6,0.2);">
+        <h2 style="font-family:var(--font-playfair); font-size:1.25rem; font-weight:700; color:var(--color-ink); margin-bottom:0.75rem;">Supprimer le commentaire</h2>
+        <p style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); margin-bottom:1.25rem;">Cette action est irréversible.</p>
+        <form id="delete-comment-form" method="post">
+            <input type="hidden" id="delete-comment-token" name="_token" value="">
+            <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+                <button type="button" onclick="closeDeleteCommentModal()" class="btn-ghost">Annuler</button>
+                <button type="submit" class="btn-primary" style="background:#9B3220; border-color:#9B3220;">Supprimer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openDeleteCommentModal(action, token) {
+    document.getElementById('delete-comment-form').action = action;
+    document.getElementById('delete-comment-token').value = token;
+    document.getElementById('modal-delete-comment').style.display = 'flex';
+}
+function closeDeleteCommentModal() {
+    document.getElementById('modal-delete-comment').style.display = 'none';
+}
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDeleteCommentModal();
+});
+</script>
+
+{% endblock %}

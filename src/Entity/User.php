@@ -82,6 +82,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $likes;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $bannedUntil = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $banReason = null;
+
     public function __construct()
     {
         $this->recipes = new ArrayCollection();
@@ -346,6 +352,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    public function getBannedUntil(): ?\DateTimeImmutable
+    {
+        return $this->bannedUntil;
+    }
+
+    public function setBannedUntil(?\DateTimeImmutable $bannedUntil): static
+    {
+        $this->bannedUntil = $bannedUntil;
+
+        return $this;
+    }
+
+    public function getBanReason(): ?string
+    {
+        return $this->banReason;
+    }
+
+    public function setBanReason(?string $banReason): static
+    {
+        $this->banReason = $banReason;
+
+        return $this;
+    }
+
+    public function isBanned() : bool
+    {
+        return $this->bannedUntil !== null && $this->bannedUntil > new \DateTimeImmutable();
     }
 
 }

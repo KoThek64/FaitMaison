@@ -11,6 +11,19 @@
         <span style="color:var(--color-ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:20rem;">{{ recipe.title }}</span>
     </nav>
 
+    {# Bandeau avertissement admin #}
+    {% if recipe.adminNote and app.user == recipe.author %}
+        <div style="margin-bottom:1.5rem; padding:1rem 1.25rem; border-radius:0.875rem; background:#FEF2F2; border:1px solid #FECACA; border-left:4px solid #EF4444;">
+            <div style="display:flex; align-items:flex-start; gap:0.75rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9B3220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:0.1rem;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <div>
+                    <p style="font-family:var(--font-crimson); font-size:0.9375rem; font-weight:600; color:#9B3220; margin-bottom:0.25rem;">Votre recette a été dépubliée par un administrateur</p>
+                    <p style="font-family:var(--font-crimson); font-size:0.9375rem; color:#7F1D1D;">{{ recipe.adminNote }}</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     {# Titre #}
     <h1 style="font-size:clamp(1.75rem, 4vw, 2.5rem); margin-bottom:1rem; line-height:1.2;">{{ recipe.title }}</h1>
 
@@ -159,10 +172,13 @@
                         {% endif %}
                         <div style="flex:1;">
                             <textarea id="comment-content" name="content" rows="3" placeholder="Partagez votre avis sur cette recette…"
-                                style="resize:vertical; min-height:5rem;"></textarea>
+                                style="resize:vertical; min-height:5rem;"
+                                oninput="var btn = document.getElementById('btn-comment'); btn.disabled = this.value.trim() === ''; btn.style.opacity = btn.disabled ? '0.4' : '1';"></textarea>
                             <div style="display:flex; justify-content:flex-end; margin-top:0.5rem;">
-                                <button type="submit" class="btn-primary" style="padding:0.5rem 1.25rem; font-size:0.9375rem;">
-                                    Publier
+                                <button id="btn-comment" type="submit" class="btn-primary" disabled
+                                    style="padding:0.5rem 1.25rem; font-size:0.9375rem; opacity:0.4; transition:opacity .2s;"
+>
+                                    Publier le commentaire
                                 </button>
                             </div>
                         </div>
@@ -311,28 +327,41 @@
     }
 
     // Commentaires — suppression
+    var pendingDeleteForm = null;
+
     function attachDeleteListeners(container) {
         container.querySelectorAll('.form-delete-comment').forEach(function (form) {
             if (form.dataset.bound) return;
             form.dataset.bound = '1';
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
-                if (!confirm('Supprimer ce commentaire ?')) return;
-
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                })
-                .then(function (r) { return r.json(); })
-                .then(function (data) {
-                    if (!data.success) return;
-                    var item = form.closest('[id^="comment-"]');
-                    if (item) item.remove();
-                    updateCommentCount();
-                });
+                pendingDeleteForm = form;
+                document.getElementById('modal-delete-comment').style.display = 'flex';
             });
         });
     }
+
+    document.getElementById('btn-confirm-delete-comment').addEventListener('click', function () {
+        if (!pendingDeleteForm) return;
+        document.getElementById('modal-delete-comment').style.display = 'none';
+        fetch(pendingDeleteForm.action, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (!data.success) return;
+            var item = pendingDeleteForm.closest('[id^="comment-"]');
+            if (item) item.remove();
+            updateCommentCount();
+            pendingDeleteForm = null;
+        });
+    });
+
+    document.getElementById('btn-cancel-delete-comment').addEventListener('click', function () {
+        document.getElementById('modal-delete-comment').style.display = 'none';
+        pendingDeleteForm = null;
+    });
 
     function updateCommentCount() {
         var list  = document.getElementById('comments-list');
@@ -400,6 +429,28 @@
         });
     }
 })();
+</script>
+
+{# ── Modal suppression commentaire ── #}
+<div id="modal-delete-comment" style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; padding:1rem;">
+    <div style="position:absolute; inset:0; background:rgba(26,13,6,0.6); backdrop-filter:blur(2px);" id="btn-cancel-delete-comment-overlay"></div>
+    <div style="position:relative; background:white; border-radius:1.25rem; padding:2rem; width:100%; max-width:26rem; box-shadow:0 20px 60px rgba(26,13,6,0.2);">
+        <h2 style="font-family:var(--font-playfair); font-size:1.25rem; font-weight:700; color:var(--color-ink); margin-bottom:0.75rem;">Supprimer le commentaire</h2>
+        <p style="font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink-muted); margin-bottom:1.25rem;">Cette action est irréversible.</p>
+        <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+            <button id="btn-cancel-delete-comment" type="button" class="btn-ghost">Annuler</button>
+            <button id="btn-confirm-delete-comment" type="button" class="btn-primary" style="background:#9B3220; border-color:#9B3220;">Supprimer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('btn-cancel-delete-comment-overlay').addEventListener('click', function () {
+    document.getElementById('modal-delete-comment').style.display = 'none';
+});
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') document.getElementById('modal-delete-comment').style.display = 'none';
+});
 </script>
 
 {% endblock %}

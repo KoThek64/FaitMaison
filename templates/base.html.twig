@@ -54,6 +54,14 @@
                         Mon profil
                     </a>
                 {% endif %}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(250,244,232,0.08);">
+                        <a href="{{ path('app_admin_dashboard') }}" class="sidebar-link" style="color:rgba(201,150,58,0.8);">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            Administration
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </nav>
 

@@ -115,7 +115,13 @@ final class RecipeController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $recipe->setUpdatedAt(new \DateTime());
-            $recipe->setIsPublished($request->request->get('action') === 'publish');
+
+            $wantsToPublish = $request->request->get('action') === 'publish';
+            if ($wantsToPublish && $recipe->getAdminNote()) {
+                $this->addFlash('error', 'Votre recette a été dépubliée par un administrateur. Vous ne pouvez pas la republier vous-même.');
+                $wantsToPublish = false;
+            }
+            $recipe->setIsPublished($wantsToPublish);
 
             /** @var UploadedFile|null $fichier */
             $fichier = $form->get('imageFile')->getData();
