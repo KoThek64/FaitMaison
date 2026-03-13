@@ -118,8 +118,7 @@ final class RecipeController extends AbstractController
 
             $wantsToPublish = $request->request->get('action') === 'publish';
             if ($wantsToPublish && $recipe->getAdminNote()) {
-                $this->addFlash('error', 'Votre recette a été dépubliée par un administrateur. Vous ne pouvez pas la republier vous-même.');
-                $wantsToPublish = false;
+                return $this->redirectToRoute('app_recipe_edit', ['id' => $recipe->getId()]);
             }
             $recipe->setIsPublished($wantsToPublish);
 
@@ -134,10 +133,14 @@ final class RecipeController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash(
-                'success',
-                $recipe->isPublished() ? 'Recette publiée avec succès !' : 'Recette repassée en brouillon.'
-            );
+            if ($recipe->getAdminNote()) {
+                $this->addFlash('success', 'Modifications enregistrées.');
+            } else {
+                $this->addFlash(
+                    'success',
+                    $recipe->isPublished() ? 'Recette publiée avec succès !' : 'Recette repassée en brouillon.'
+                );
+            }
 
             return $this->redirectToRoute('app_recipe_show', ['id' => $recipe->getId()]);
         }

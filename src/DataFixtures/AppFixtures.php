@@ -47,6 +47,23 @@ class AppFixtures extends Fixture
             $tags[] = $tag;
         }
 
+        // Compte admin
+        $admin = new User();
+        $admin->setEmail('admin@fait-maison.com');
+        $admin->setUsername('admin');
+        $admin->setPassword($this->hasher->hashPassword($admin, '123456789'));
+        $admin->setRoles(['ROLE_ADMIN']);
+        $admin->setCreatedAt(new \DateTimeImmutable());
+        $admin->setBio("L'admin hehe");
+        $manager->persist($admin);
+
+        $testUser = new User();
+        $testUser->setEmail('test@mail.com');
+        $testUser->setUsername('test');
+        $testUser->setPassword($this->hasher->hashPassword($testUser, '123456789'));
+        $testUser->setCreatedAt(new \DateTimeImmutable());
+        $manager->persist($testUser);
+
         // Utilisateurs
         $users = [];
         for ($i = 0; $i < 10; $i++) {
