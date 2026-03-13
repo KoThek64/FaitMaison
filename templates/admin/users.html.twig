@@ -29,7 +29,8 @@
             style="height:2.75rem; padding:0 0.875rem; border-radius:0.625rem; border:1px solid var(--color-cream-border); font-family:var(--font-crimson); font-size:0.9375rem; color:var(--color-ink); background:white; outline:none; cursor:pointer;"
             onfocus="this.style.borderColor='var(--color-terracotta)'" onblur="this.style.borderColor='var(--color-cream-border)'">
             <option value="">Tous les statuts</option>
-            <option value="active" {{ filters.status == 'active' ? 'selected' : '' }}>Non banni</option>
+            <option value="active" {{ filters.status == 'active' ? 'selected' : '' }}>Actif</option>
+            <option value="unverified" {{ filters.status == 'unverified' ? 'selected' : '' }}>Non vérifié</option>
             <option value="banned" {{ filters.status == 'banned' ? 'selected' : '' }}>Banni</option>
         </select>
         <button type="submit" class="btn-primary">Filtrer</button>
@@ -103,6 +104,11 @@
                                         </span>
                                         <span style="font-size:0.75rem; color:var(--color-sand);">jusqu'au {{ user.bannedUntil|date('d/m/Y') }}</span>
                                     </div>
+                                {% elseif not user.isVerified %}
+                                    <span style="display:inline-flex; align-items:center; gap:0.3rem; font-size:0.8125rem; font-weight:500; padding:0.25rem 0.625rem; border-radius:999px; background:#FFF7ED; color:#92400E; border:1px solid #FED7AA;">
+                                        <span style="width:6px; height:6px; border-radius:50%; background:#F59E0B; display:inline-block;"></span>
+                                        Non vérifié
+                                    </span>
                                 {% else %}
                                     <span style="display:inline-flex; align-items:center; gap:0.3rem; font-size:0.8125rem; font-weight:500; padding:0.25rem 0.625rem; border-radius:999px; background:#D1FAE5; color:#065F46;">
                                         <span style="width:6px; height:6px; border-radius:50%; background:#10B981; display:inline-block;"></span>

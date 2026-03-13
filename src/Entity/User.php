@@ -90,6 +90,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $banReason = null;
 
+    #[ORM\Column]
+    private ?bool $isVerified = false;
+
     public function __construct()
     {
         $this->recipes = new ArrayCollection();
@@ -383,6 +386,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function isBanned() : bool
     {
         return $this->bannedUntil !== null && $this->bannedUntil > new \DateTimeImmutable();
+    }
+
+    public function isVerified(): ?bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
     }
 
 }

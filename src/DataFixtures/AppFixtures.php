@@ -49,12 +49,13 @@ class AppFixtures extends Fixture
 
         // Compte admin
         $admin = new User();
-        $admin->setEmail('admin@fait-maison.com');
+        $admin->setEmail('admin@faitmaison.fr');
         $admin->setUsername('admin');
         $admin->setPassword($this->hasher->hashPassword($admin, '123456789'));
         $admin->setRoles(['ROLE_ADMIN']);
         $admin->setCreatedAt(new \DateTimeImmutable());
         $admin->setBio("L'admin hehe");
+        $admin->setIsVerified(true);
         $manager->persist($admin);
 
         $testUser = new User();
@@ -62,7 +63,18 @@ class AppFixtures extends Fixture
         $testUser->setUsername('test');
         $testUser->setPassword($this->hasher->hashPassword($testUser, '123456789'));
         $testUser->setCreatedAt(new \DateTimeImmutable());
+        $testUser->setIsVerified(true);
         $manager->persist($testUser);
+
+        // Comptes non vérifiés
+        foreach (['unverified1@mail.com', 'unverified2@mail.com', 'unverified3@mail.com'] as $i => $email) {
+            $u = new User();
+            $u->setEmail($email);
+            $u->setUsername('unverified' . ($i + 1));
+            $u->setPassword($this->hasher->hashPassword($u, 'password'));
+            $u->setCreatedAt(new \DateTimeImmutable());
+            $manager->persist($u);
+        }
 
         // Utilisateurs
         $users = [];
@@ -72,6 +84,7 @@ class AppFixtures extends Fixture
             $user->setUsername($faker->unique()->userName());
             $user->setPassword($this->hasher->hashPassword($user, 'password'));
             $user->setCreatedAt(\DateTimeImmutable::createFromMutable($faker->dateTimeBetween('-1 year', 'now')));
+            $user->setIsVerified(true);
             $manager->persist($user);
             $users[] = $user;
         }
