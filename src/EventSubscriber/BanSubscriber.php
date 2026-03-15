@@ -25,10 +25,5 @@ class BanSubscriber implements EventSubscriberInterface
                 'Votre compte a été suspendu jusqu\'au ' . $user->getBannedUntil()->format('d/m/Y à H:i') . ' - ' . $user->getBanReason()
             );
         }
-        if (!$user->isVerified()){
-            throw new CustomUserMessageAuthenticationException(
-                'Vous devez confirmer votre adresse mail avant de vous connecter.'
-            );
-        }
     }
 }

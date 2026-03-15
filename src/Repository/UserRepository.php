@@ -50,10 +50,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
                    ->setParameter('now', new \DateTimeImmutable());
             } elseif ($filters['status'] === 'active') {
                 $qb->andWhere('u.bannedUntil IS NULL OR u.bannedUntil <= :now')
-                   ->andWhere('u.isVerified = true')
                    ->setParameter('now', new \DateTimeImmutable());
-            } elseif ($filters['status'] === 'unverified') {
-                $qb->andWhere('u.isVerified = false');
             }
         }
 
