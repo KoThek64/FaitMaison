@@ -118,6 +118,7 @@ FaitMaison/
 │   ├── Form/
 │   │   ├── RegistrationType.php
 │   │   ├── RecipeType.php              # imageFile mapped:false
+│   │   ├── RecipeFilterType.php        # filtres GET (catégorie, tag, difficulté, durée)
 │   │   └── ProfileType.php             # avatarFile mapped:false
 │   ├── Repository/
 │   │   ├── RecipeRepository.php        # findPublished, findPublishedQuery, findByFollowingQuery, findRecommended, findByAdminFilters, findAdminUnpublished
